@@ -1,25 +1,21 @@
-# Python
+# Ignore non-web documents, presentations & temp files
+*.docx
+*.xlsx
+*.pdf
+slide_*.html
+slide_*.md
+flow_diagram_preview.html
+*process_flow*
+*solution*
+*test_diagram*
+index (2).html
+Agritech.md
+MoTaGiaiPhap.md
+Mo_Ta_Du_An_AgriTech.md
+📋*
+
+# System & Temp
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-
-# System files
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-*.stackdump
-[Dd]esktop.ini
-.DS_Store
-
-# Temporary & cache files
 *.tmp
-*.temp
-temp_repo/
-.vscode/
-.idea/
+.DS_Store
+Thumbs.db
