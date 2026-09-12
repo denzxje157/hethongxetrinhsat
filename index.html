@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MicroScout-AI | Xe Trinh Sát Lập Bản Đồ Nhiệt Cỏ Dại & Sức Khỏe Cây Trồng</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Leaflet Heatmap Plugin (Real Smooth Gradient Heatmap) -->
+  <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    
+    .light-hero-bg {
+      background: radial-gradient(circle at 90% 10%, rgba(34, 197, 94, 0.15), transparent 45%),
+                  radial-gradient(circle at 10% 90%, rgba(14, 165, 233, 0.1), transparent 40%),
+                  linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.9); opacity: 0.95; }
+      50% { transform: scale(1.4); opacity: 0.25; }
+      100% { transform: scale(0.9); opacity: 0.95; }
+    }
+    .pulse-marker { animation: pulse-ring 1.8s infinite ease-in-out; }
+
+    @keyframes hotspot-glow {
+      0%, 100% { box-shadow: 0 0 12px #ef4444, 0 0 24px rgba(239, 68, 68, 0.6); transform: scale(1); }
+      50% { box-shadow: 0 0 20px #ef4444, 0 0 35px rgba(239, 68, 68, 0.85); transform: scale(1.1); }
+    }
+    .hotspot-beacon { animation: hotspot-glow 1.4s infinite ease-in-out; }
+
+    .leaflet-control-attribution {
+      display: none !important;
+    }
+    #map {
+      height: 440px;
+      width: 100%;
+      border-radius: 0.875rem;
+      z-index: 10;
+    }
+    @media (min-width: 768px) {
+      #map { height: 600px; border-radius: 1rem; }
+    }
+
+    /* Heatmap Spectrum Gradient Legend Bar */
+    .heat-gradient-bar {
+      background: linear-gradient(to right, rgba(250, 204, 21, 0.7) 0%, rgba(251, 146, 60, 0.8) 50%, rgba(244, 63, 94, 0.9) 100%);
+    }
+
+    /* Active thumbnail border in 3D gallery */
+    .thumb-btn.active {
+      border-color: #10b981 !important;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
+      opacity: 1 !important;
+    }
+
+    .picking-cursor {
+      cursor: crosshair !important;
+    }
+
+    /* Mobile Tab Switching */
+    @media (max-width: 767px) {
+      .mobile-tab-content { display: none; }
+      .mobile-tab-content.active { display: block; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-emerald-100 selection:text-emerald-900 pb-20 md:pb-0">
+
+  <!-- ================= NAVBAR ================= -->
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14 sm:h-16">
+        
+        <!-- Logo -->
+        <div class="flex items-center space-x-2 sm:space-x-3 cursor-pointer shrink-0" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-green-600 flex items-center justify-center shadow-md shadow-emerald-500/20 text-white font-bold text-base sm:text-xl">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-base sm:text-lg font-black tracking-tight text-slate-900">
+              MicroScout<span class="text-emerald-600">AI</span>
+            </span>
+            <span class="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider bg-rose-50 border border-rose-300 text-rose-700 px-1.5 py-0.5 rounded flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> SATELLITE GIS
+            </span>
+          </div>
+        </div>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden md:flex items-center space-x-6 text-sm font-semibold text-slate-600">
+          <a href="#hero" class="hover:text-emerald-600 transition-colors">Giới thiệu</a>
+          <a href="#simulator" class="hover:text-emerald-600 transition-colors">Bản Đồ Vệ Tinh Các Tỉnh</a>
+          <a href="#gallery3d" class="hover:text-emerald-600 transition-colors">Mô Hình Xe 3D</a>
+          <a href="#solution" class="hover:text-emerald-600 transition-colors">Quy Trình 4 Bước</a>
+          <a href="#roi" class="hover:text-emerald-600 transition-colors">Tính ROI</a>
+        </div>
+
+        <!-- Action Button -->
+        <div class="flex items-center space-x-2">
+          <a href="#simulator" onclick="startHeatmapScanning()" class="hidden sm:flex bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 transition-all items-center space-x-1.5 active:scale-95">
+            <i class="fa-solid fa-fire-flame-curved text-[10px] sm:text-xs text-amber-300"></i>
+            <span>Quét Bản Đồ Nhiệt</span>
+          </a>
+          <button onclick="resetHeatmapSimulation()" class="sm:hidden bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-bold border border-slate-200 active:scale-95">
+            <i class="fa-solid fa-rotate-right mr-1"></i> Đặt lại
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================= HERO SECTION ================= -->
+  <section id="hero" class="relative pt-20 pb-10 sm:pt-28 sm:pb-20 light-hero-bg overflow-hidden border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
+        
+        <!-- Left Column: Copywriting -->
+        <div class="lg:col-span-7 space-y-3.5 sm:space-y-5 text-left">
+          
+          <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] sm:text-xs font-bold text-emerald-700 shadow-xs">
+            <i class="fa-solid fa-map-location-dot text-emerald-600"></i>
+            <span>Ảnh Vệ Tinh Google Hybrid • Có Tên Tỉnh, Huyện, Xã Rõ Ràng • Make in Vietnam 2026</span>
+          </div>
+
+          <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+            Chọn <span class="text-emerald-600 underline decoration-emerald-300 decoration-wavy underline-offset-4">tỉnh thành & thửa ruộng</span>, <br class="hidden sm:inline">
+            quét luống lập <span class="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-orange-500 to-amber-600">bản đồ nhiệt điểm nóng</span>
+          </h1>
+
+          <p class="text-slate-600 text-xs sm:text-base leading-relaxed font-normal">
+            Bản đồ vệ tinh Google tích hợp <strong>đầy đủ tên tỉnh thành, huyện, xã, thị trấn và đường liên thôn</strong> trên khắp Việt Nam (Sơn La, Thanh Hóa, Tây Ninh, Lâm Đồng, Đắk Lắk...). Bạn có thể chọn bất kỳ tỉnh nào, chạm vào thửa ruộng nhà mình để đặt ô quét, và xe robot trinh sát sẽ lập nên <strong>quầng nhiệt gradient đỏ rực</strong> tại các ổ cỏ dại, sâu bệnh để xử lý chính xác.
+          </p>
+
+          <!-- 3 Badges -->
+          <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-1">
+            <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+              <div class="text-emerald-700 text-[9px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
+                <i class="fa-solid fa-map-pin text-emerald-600 text-[10px]"></i>
+                <span>TỈNH THÀNH</span>
+              </div>
+              <div class="text-slate-900 font-extrabold text-xs sm:text-sm mt-0.5 leading-snug">
+                Rõ Tỉnh & Huyện
+              </div>
+            </div>
+
+            <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+              <div class="text-rose-700 text-[9px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
+                <i class="fa-solid fa-fire text-rose-500 text-[10px]"></i>
+                <span>ĐIỂM NÓNG</span>
+              </div>
+              <div class="text-slate-900 font-extrabold text-xs sm:text-sm mt-0.5 leading-snug">
+                Quầng Nhiệt Đỏ
+              </div>
+            </div>
+
+            <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200 shadow-xs flex flex-col justify-between">
+              <div class="text-sky-700 text-[9px] sm:text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
+                <i class="fa-solid fa-satellite text-sky-600 text-[10px]"></i>
+                <span>VỆ TINH LAI</span>
+              </div>
+              <div class="text-slate-900 font-extrabold text-xs sm:text-sm mt-0.5 leading-snug">
+                Google Hybrid
+              </div>
+            </div>
+          </div>
+
+          <!-- CTAs -->
+          <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 pt-1">
+            <a href="#simulator" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-3 rounded-xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center space-x-2 active:scale-95 text-xs sm:text-sm">
+              <i class="fa-solid fa-location-dot text-xs"></i>
+              <span>Chọn Tỉnh Thành & Thửa Ruộng</span>
+            </a>
+            <a href="#gallery3d" class="w-full sm:w-auto bg-white hover:bg-slate-50 text-slate-800 font-bold px-5 py-3 rounded-xl border border-slate-300 shadow-xs transition-all flex items-center justify-center space-x-2 active:scale-95 text-xs sm:text-sm">
+              <i class="fa-solid fa-cube text-emerald-600 text-xs"></i>
+              <span>Xem 10 Ảnh Mô Hình 3D Xe</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Right Column: 3D Model Real Hardware -->
+        <div class="lg:col-span-5">
+          <div class="relative rounded-2xl overflow-hidden bg-slate-950 p-2 border border-slate-800 shadow-2xl">
+            <div class="relative overflow-hidden rounded-xl bg-slate-900 aspect-[16/11]">
+              <img src="XeTrinhSatAI_10anh/01_tong_the.png" alt="Mô hình 3D Xe Trinh Sát AI" class="w-full h-full object-cover">
+              <div class="absolute top-2.5 left-2.5 bg-emerald-600/90 text-white font-mono text-[9px] sm:text-[10px] px-2 py-0.5 rounded backdrop-blur-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                <span>MÔ HÌNH THỰC TẾ 3D</span>
+              </div>
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/60 to-transparent p-3 pt-6 text-white">
+                <p class="font-extrabold text-xs sm:text-sm">Xe Trinh Sát Địa Hình MicroScout-AI</p>
+                <p class="text-[10px] sm:text-[11px] text-slate-300 font-medium">Khung hẹp 42cm luồn lách giữa rãnh luống ngô, mía, sắn mà không làm gãy dập cành</p>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-1.5 p-1.5 mt-1 text-center text-[10px] text-slate-300 bg-slate-900 rounded-lg font-medium border border-slate-800">
+              <div>Khối lượng: <strong class="text-white">12.5 kg</strong></div>
+              <div class="border-x border-slate-800">Gầm vượt rãnh: <strong class="text-emerald-400">28 cm</strong></div>
+              <div>Kháng bụi ẩm: <strong class="text-emerald-400">IP67</strong></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SIMULATOR SECTION: PROVINCE SELECTOR & GOOGLE HYBRID HEATMAP ================= -->
+  <section id="simulator" class="py-8 sm:py-14 bg-white border-b border-slate-200 relative">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between mb-3 sm:mb-4 gap-3">
+        <div>
+          <div class="text-rose-600 text-[10px] sm:text-xs font-extrabold uppercase tracking-widest flex items-center gap-1.5">
+            <i class="fa-solid fa-map-location-dot"></i> BẢN ĐỒ VỆ TINH GOOGLE HYBRID • HIỂN THỊ ĐẦY ĐỦ TỈNH / HUYỆN / XÃ
+          </div>
+          <h2 class="text-xl sm:text-3xl font-extrabold text-slate-900 mt-0.5">Bản Đồ Nhiệt Vệ Tinh Điểm Nóng</h2>
+          <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Tự động định vị GPS vị trí hiện tại, ghim ô quét và xe trinh sát ngay tại thửa ruộng của bạn</p>
+        </div>
+
+        <!-- Main Action Buttons -->
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <!-- Primary: Pick Area Button -->
+          <button id="btn-pick-mode" onclick="togglePickingMode()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs sm:text-sm transition-all flex items-center space-x-1.5 shadow-md shadow-amber-500/20 active:scale-95 border border-amber-400">
+            <i class="fa-solid fa-location-crosshairs text-xs"></i>
+            <span id="btn-pick-text">Chạm Đặt Ô Ruộng</span>
+          </button>
+
+          <!-- Primary: Start Scanning Button -->
+          <button id="btn-start-sim" onclick="startHeatmapScanning()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-all flex items-center space-x-1.5 shadow-md shadow-emerald-600/20 active:scale-95">
+            <i id="btn-start-icon" class="fa-solid fa-play text-xs"></i>
+            <span id="btn-start-text">Quét Vùng Này</span>
+          </button>
+          
+          <button onclick="resetHeatmapSimulation()" class="bg-white hover:bg-slate-100 text-slate-700 font-semibold px-3 py-2 rounded-xl text-xs sm:text-sm border border-slate-300 transition-all flex items-center space-x-1 shadow-xs active:scale-95">
+            <i class="fa-solid fa-rotate-right text-[10px]"></i>
+            <span>Đặt Lại</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- SMART GPS CURRENT LOCATION BAR -->
+      <div class="bg-slate-900 text-white p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 border border-slate-800 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+        
+        <!-- Left: Live GPS Auto-pin Badge -->
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-sm shrink-0">
+            <i class="fa-solid fa-location-crosshairs animate-pulse"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5 font-bold text-emerald-400 text-xs sm:text-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span id="badge-admin-location">Đang định vị vị trí hiện tại của bạn...</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
+              <span id="gps-coords-sub">Tự động ghim ô quét & xe trinh sát tại tọa độ GPS thực tế</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Action Buttons -->
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="requestUserLocation()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95 transition-all">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>Lấy Vị Trí Của Tôi</span>
+          </button>
+          
+          <button onclick="focusFieldCloseUp()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold text-xs flex items-center gap-1.5 border border-slate-700 active:scale-95 transition-all" title="Focus cận cảnh ô ruộng">
+            <i class="fa-solid fa-bullseye text-emerald-400"></i>
+            <span>Cận Cảnh Ruộng</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- FIELD ADJUSTMENT TOOLBAR (Ẩn trên mobile để nông dân không bị rối, chỉ hiện trên Desktop) -->
+      <div class="hidden md:flex bg-slate-900 text-white p-2.5 sm:p-3 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 border border-slate-800 shadow-md flex-wrap items-center justify-between gap-2.5 text-xs">
+        
+        <!-- Left: Current Position & Size Info -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></div>
+          <div>
+            <span class="text-slate-400 text-[11px]">Tọa độ RTK ô quét:</span>
+            <span id="label-field-coords" class="font-mono font-bold text-emerald-400 text-xs ml-1">21.24882° N, 103.98520° E</span>
+          </div>
+          <div class="hidden sm:inline text-slate-700">|</div>
+          <div class="hidden sm:flex items-center gap-1">
+            <span class="text-slate-400 text-[11px]">Quy mô:</span>
+            <span id="label-field-area" class="font-bold text-white text-xs">1.2 ha</span>
+          </div>
+        </div>
+
+        <!-- Center / Right: Quick Adjustments Controls -->
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <!-- Size Selector (Nhỏ gọn vừa vặn luống) -->
+          <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-lg border border-slate-700 text-[11px]">
+            <span class="text-slate-400 px-1 font-medium">Quy mô ô:</span>
+            <button onclick="setFieldSizePreset(60, 50, 0.6)" id="btn-size-06" class="px-2 py-0.5 rounded text-slate-300 hover:text-white hover:bg-slate-700 font-bold transition-all">0.6 ha</button>
+            <button onclick="setFieldSizePreset(85, 70, 1.2)" id="btn-size-12" class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold transition-all">1.2 ha</button>
+            <button onclick="setFieldSizePreset(130, 105, 2.5)" id="btn-size-25" class="px-2 py-0.5 rounded text-slate-300 hover:text-white hover:bg-slate-700 font-bold transition-all">2.5 ha</button>
+          </div>
+          <button onclick="focusFieldCloseUp()" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold flex items-center gap-1 active:scale-95 shadow-xs" title="Phóng to cận cảnh ô ruộng">
+            <i class="fa-solid fa-bullseye"></i> Focus Cận Cảnh
+          </button>
+
+          <!-- Rotation Controls (Xoay hướng luống) -->
+          <div class="flex items-center space-x-1 bg-slate-800 p-1 rounded-lg border border-slate-700 text-[11px]">
+            <span class="text-slate-400 px-1 font-medium">Xoay luống:</span>
+            <button onclick="rotateField(-15)" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold transition-all active:scale-95" title="Xoay trái 15 độ">
+              <i class="fa-solid fa-rotate-left mr-0.5"></i> -15°
+            </button>
+            <span id="label-field-angle" class="font-mono text-emerald-300 font-bold px-1">0°</span>
+            <button onclick="rotateField(15)" class="px-2 py-0.5 rounded bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold transition-all active:scale-95" title="Xoay phải 15 độ">
+              +15° <i class="fa-solid fa-rotate-right ml-0.5"></i>
+            </button>
+          </div>
+
+          <!-- Row Count Selector -->
+          <div class="hidden md:flex items-center space-x-1 bg-slate-800 p-1 rounded-lg border border-slate-700 text-[11px]">
+            <span class="text-slate-400 px-1 font-medium">Số luống:</span>
+            <button onclick="setRowCount(4)" id="btn-rows-4" class="px-1.5 py-0.5 rounded text-slate-300 hover:text-white">4</button>
+            <button onclick="setRowCount(6)" id="btn-rows-6" class="px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold">6</button>
+            <button onclick="setRowCount(8)" id="btn-rows-8" class="px-1.5 py-0.5 rounded text-slate-300 hover:text-white">8</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Mobile Farmer Telemetry Strip & Friendly Guidance Banner -->
+      <div class="md:hidden space-y-1.5 mb-2.5">
+        <!-- 1-Row Status Strip -->
+        <div class="flex items-center justify-between bg-slate-900 text-white px-3 py-2 rounded-xl text-[11px] font-mono shadow-md border border-slate-800">
+          <div class="flex items-center gap-1 text-emerald-400 font-bold">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="mob-tele-row">Luống 1/6</span>
+          </div>
+          <div class="flex items-center gap-1 text-rose-400 font-bold">
+            <i class="fa-solid fa-fire text-[10px]"></i>
+            <span><span id="mob-tele-weed">0</span> Ổ cỏ</span>
+          </div>
+          <div class="flex items-center gap-1 text-amber-300 font-bold">
+            <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
+            <span><span id="mob-tele-stress">0</span> Sâu bệnh</span>
+          </div>
+          <div class="text-slate-300">
+            <span id="mob-tele-area">0.0</span>/<span id="mob-tele-total">1.2</span>ha
+          </div>
+        </div>
+
+        <!-- Friendly Farmer Action Tip -->
+        <div class="bg-emerald-50 border border-emerald-300 text-emerald-900 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-between shadow-2xs">
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm">👉</span>
+            <span>Chạm vào <strong>ổ đỏ</strong> để xem ảnh cỏ & la bàn chỉ đường nhổ!</span>
+          </div>
+          <button onclick="simulateFarmerWalkToNearest()" class="shrink-0 bg-emerald-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-lg active:scale-95">
+            Dẫn đường
+          </button>
+        </div>
+      </div>
+
+      <!-- Real-time Telemetry Dashboard (Desktop Only: 4 Metric Badges) -->
+      <div class="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 mb-3 sm:mb-5">
+        
+        <!-- Metric 1: Location & Status -->
+        <div class="bg-slate-900 text-white p-2.5 sm:p-3.5 rounded-xl border border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between text-[11px] text-slate-400 font-medium">
+            <span>Tiến trình trinh sát</span>
+            <span id="tele-ping" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+          <div class="text-xs sm:text-sm font-extrabold text-white mt-0.5 truncate flex items-center gap-1">
+            <i class="fa-solid fa-satellite-dish text-emerald-400 text-xs shrink-0"></i>
+            <span id="tele-row-label">Luống 1 / 6 (Sẵn sàng)</span>
+          </div>
+          <div id="tele-speed" class="text-[10px] text-emerald-300 font-mono mt-0.5 truncate">RTK FIX (18 SV) • 1.2 m/s</div>
+        </div>
+
+        <!-- Metric 2: Weed Hotspots (Red Plumes) -->
+        <div class="bg-rose-50 p-2.5 sm:p-3.5 rounded-xl border border-rose-200 shadow-xs">
+          <div class="flex items-center justify-between text-[11px] text-rose-700 font-bold">
+            <span>Ổ Điểm Nóng Cỏ Dại</span>
+            <i class="fa-solid fa-fire text-rose-600 text-xs"></i>
+          </div>
+          <div class="text-lg sm:text-2xl font-black text-rose-600 flex items-baseline gap-1 mt-0.5">
+            <span id="tele-weed-count">0</span>
+            <span class="text-[10px] sm:text-xs text-rose-500 font-normal">vùng đỏ rực</span>
+          </div>
+          <div class="text-[10px] text-rose-600/80 font-medium truncate">Mật độ cao (>15 khóm/m²)</div>
+        </div>
+
+        <!-- Metric 3: Pest & Disease Stress (Yellow/Orange) -->
+        <div class="bg-amber-50 p-2.5 sm:p-3.5 rounded-xl border border-amber-200 shadow-xs">
+          <div class="flex items-center justify-between text-[11px] text-amber-800 font-bold">
+            <span>Cụm Sâu Bệnh / Suy Yếu</span>
+            <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xs"></i>
+          </div>
+          <div class="text-lg sm:text-2xl font-black text-amber-600 flex items-baseline gap-1 mt-0.5">
+            <span id="tele-stress-count">0</span>
+            <span class="text-[10px] sm:text-xs text-amber-600 font-normal">vùng vàng cam</span>
+          </div>
+          <div class="text-[10px] text-amber-700/80 font-medium truncate">Sâu keo & cháy mép lá</div>
+        </div>
+
+        <!-- Metric 4: Scanned Area & Progress -->
+        <div class="bg-emerald-50 p-2.5 sm:p-3.5 rounded-xl border border-emerald-200 shadow-xs">
+          <div class="flex items-center justify-between text-[11px] text-emerald-800 font-bold">
+            <span>Diện Tích Đã Quét</span>
+            <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
+          </div>
+          <div class="text-lg sm:text-2xl font-black text-emerald-700 flex items-baseline gap-1 mt-0.5">
+            <span id="tele-area">0.0</span>
+            <span class="text-[10px] sm:text-xs text-emerald-600 font-normal">/ <span id="tele-total-area">1.2</span> ha (<span id="tele-pct">0%</span>)</span>
+          </div>
+          <div class="text-[10px] text-emerald-700/80 font-medium">Toàn vẹn luống: 100%</div>
+        </div>
+
+      </div>
+
+      <!-- Main Map & AI Vision Column Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-6 items-start">
+        
+        <!-- Left: Satellite Map with Heatmap (Col 8) -->
+        <div id="mobile-tab-map-content" class="mobile-tab-content active lg:col-span-8 space-y-2">
+          <div class="relative rounded-xl sm:rounded-2xl overflow-hidden border-2 border-slate-300 shadow-lg bg-slate-950">
+            
+            <!-- Map DOM Container -->
+            <div id="map"></div>
+
+            <!-- Top Notification Banner when picking mode is active -->
+            <div id="banner-picking-guide" class="absolute top-2 left-2 right-2 sm:left-4 sm:right-4 z-30 bg-amber-500 text-slate-950 px-3.5 py-2 rounded-xl font-bold text-xs shadow-xl flex items-center justify-between border-2 border-amber-300 animate-bounce">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-hand-pointer text-sm animate-pulse"></i>
+                <span>Chạm vào bất kỳ thửa ruộng nào trên ảnh vệ tinh để đặt ô quét!</span>
+              </div>
+              <button onclick="togglePickingMode()" class="bg-slate-950 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold hover:bg-slate-800">
+                Xong
+              </button>
+            </div>
+
+            <!-- Overlay Heatmap Gradient Scale Bar (Desktop Only) -->
+            <div class="hidden sm:block absolute top-3 right-3 z-20 bg-slate-950/90 p-2.5 rounded-xl border border-slate-700 text-xs shadow-xl space-y-1.5 backdrop-blur-md text-white max-w-[200px]">
+              <div class="font-bold flex items-center justify-between gap-1 text-[11px]">
+                <span class="flex items-center gap-1 text-rose-400"><i class="fa-solid fa-fire text-xs"></i> Thang Nhiệt Điểm Nóng</span>
+                <span class="text-[9px] text-slate-400 font-mono">0-100%</span>
+              </div>
+              
+              <!-- Gradient Bar -->
+              <div class="w-full h-2 rounded-full heat-gradient-bar border border-white/20 shadow-inner"></div>
+
+              <div class="flex justify-between text-[9px] font-mono text-slate-300">
+                <span class="text-emerald-400 font-bold">Sạch</span>
+                <span class="text-amber-300">Nhẹ</span>
+                <span class="text-rose-400 font-black">CỰC NÓNG</span>
+              </div>
+            </div>
+
+
+
+
+
+          </div>
+
+
+        </div>
+
+        <!-- Right: Real-time Inspection Log & AI Vision Pop (Col 4) -->
+        <div id="mobile-tab-vision-content" class="mobile-tab-content md:block lg:col-span-4 space-y-3">
+          
+          <!-- AI Evidence Inspector Panel -->
+          <div class="bg-slate-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+              <div class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                <i class="fa-solid fa-eye text-emerald-600"></i> Thị Giác AI Tầm Thấp 120fps
+              </div>
+              <span id="evidence-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-700 border border-rose-200 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> ĐIỂM NÓNG
+              </span>
+            </div>
+
+            <!-- Evidence Content Box -->
+            <div class="mt-2.5 space-y-2.5">
+              <!-- Active Image Screen Container -->
+              <div class="relative rounded-xl overflow-hidden bg-slate-900 aspect-video border border-slate-200 flex items-center justify-center">
+                <!-- Camera Feed Image -->
+                <img id="evidence-img" src="assets/evidence/01_co_long_vuc.jpg" class="w-full h-full object-cover" alt="AI Camera Feed">
+                
+                <!-- Bounding Box Overlay -->
+                <div id="evidence-bbox" class="absolute border-2 border-rose-500 bg-rose-500/20 rounded pointer-events-none transition-all duration-300" style="top: 20%; left: 25%; width: 45%; height: 50%;">
+                  <span id="bbox-label" class="absolute -top-4 left-0 bg-rose-600 text-white font-mono text-[8px] px-1 rounded font-bold">
+                    CỎ LỒNG VỰC: 96.2%
+                  </span>
+                </div>
+
+                <!-- Camera HUD Overlays -->
+                <div class="absolute top-1.5 left-1.5 bg-black/60 backdrop-blur-xs text-white text-[9px] font-mono px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+                  <span id="cam-hud-row">CAM L (Hông Trái) - LUỐNG 2</span>
+                </div>
+
+                <div class="absolute bottom-1.5 right-1.5 bg-black/60 text-white text-[8px] font-mono px-1.5 py-0.5 rounded">
+                  120 FPS • Global Shutter
+                </div>
+              </div>
+
+              <!-- Metadata Table -->
+              <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200">
+                  <span class="text-slate-500 font-medium text-[11px]">Vị trí điểm nóng:</span>
+                  <span id="ev-grid-cell" class="font-bold text-slate-900 text-xs">Luống 2 (Ô rẫy bạn chọn)</span>
+                </div>
+
+                <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200">
+                  <span class="text-slate-500 font-medium text-[11px]">Phát hiện AI:</span>
+                  <span id="ev-target" class="font-bold text-rose-600 text-xs">Cỏ lồng vực phát triển dày (>18 khóm/m²)</span>
+                </div>
+
+                <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200">
+                  <span class="text-slate-500 font-medium text-[11px]">Tọa độ RTK Centimet:</span>
+                  <span id="ev-coords" class="font-mono text-emerald-700 font-bold text-[11px]">21.24882° N, 103.98540° E (±1.8cm)</span>
+                </div>
+
+                <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-slate-200">
+                  <span class="text-slate-500 font-medium text-[11px]">Độ tin cậy mô hình:</span>
+                  <span id="ev-confidence" class="font-bold text-emerald-600 text-xs">96.2% (YOLOv8 Jetson)</span>
+                </div>
+
+                <!-- Action Button -->
+                <button onclick="navigateDirectToCell()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-md shadow-rose-600/20 active:scale-95">
+                  <i class="fa-solid fa-location-arrow text-amber-200"></i>
+                  <span>Nhắm Thẳng Tới Điểm Nóng Này Để Xử Lý</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-time Scan Event Log -->
+          <div class="bg-slate-50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-slate-200 shadow-xs">
+            <div class="flex items-center justify-between pb-1.5 border-b border-slate-200 text-xs font-bold text-slate-800">
+              <span class="flex items-center gap-1.5">
+                <i class="fa-solid fa-terminal text-emerald-600 text-xs"></i> Nhật Ký Quét Bản Đồ Nhiệt
+              </span>
+              <span class="text-[9px] text-emerald-700 font-mono font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                Live RTK
+              </span>
+            </div>
+            <div id="event-log" class="mt-2 space-y-1 max-h-32 overflow-y-auto text-[10px] sm:text-[11px] font-mono pr-1 text-slate-600">
+              <div class="text-slate-400 italic">[Sẵn sàng] Bản đồ vệ tinh Google đã tải xong với đầy đủ tên tỉnh, huyện, xã!</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 3D ROVER HARDWARE & BLUEPRINT SHOWCASE (XeTrinhSatAI_10anh) ================= -->
+  <section id="gallery3d" class="py-10 sm:py-16 bg-slate-900 text-white border-b border-slate-800 relative">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+      
+      <!-- Section Title -->
+      <div class="text-center max-w-3xl mx-auto mb-6 sm:mb-10 space-y-2">
+        <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-[11px] sm:text-xs font-bold text-emerald-400">
+          <i class="fa-solid fa-cube"></i>
+          <span>BẢN VẼ KỸ THUẬT & THIẾT KẾ 3D THỰC TẾ</span>
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-black tracking-tight text-white">
+          Khám Phá Cấu Trúc Xe Trinh Sát AI
+        </h2>
+        <p class="text-slate-400 text-xs sm:text-sm">
+          Bộ 10 bản vẽ kỹ thuật chi tiết từ mô hình 3D thực tế của xe: khung gầm vượt địa hình, khoang kín kháng nước IP67, cụm camera kép 120fps tầm thấp và module AI NVIDIA Jetson.
+        </p>
+      </div>
+
+      <!-- Main 3D Viewer Container -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-center">
+        
+        <!-- Large Featured Image View (Col 8) -->
+        <div class="lg:col-span-8 bg-slate-950 rounded-2xl p-2 sm:p-3 border border-slate-800 shadow-2xl relative">
+          <div class="relative rounded-xl overflow-hidden bg-slate-900 aspect-[16/10] sm:aspect-[16/9] flex items-center justify-center">
+            <img id="main-gallery-img" src="XeTrinhSatAI_10anh/01_tong_the.png" alt="Bản vẽ xe trinh sát" class="w-full h-full object-contain cursor-zoom-in transition-transform duration-300" onclick="openLightbox(this.src)">
+            
+            <!-- Watermark / View Badge -->
+            <div class="absolute top-2.5 left-2.5 bg-slate-900/85 backdrop-blur-md border border-slate-700/60 text-white font-mono text-[10px] sm:text-xs px-2.5 py-1 rounded-lg flex items-center gap-1.5 font-bold">
+              <span id="gallery-index-badge" class="text-emerald-400">01 / 10</span>
+              <span class="text-slate-500">|</span>
+              <span id="gallery-title-badge">Phối Cảnh Tổng Thể 3D</span>
+            </div>
+
+            <!-- Zoom button -->
+            <button onclick="openLightbox(document.getElementById('main-gallery-img').src)" class="absolute bottom-2.5 right-2.5 bg-slate-900/80 hover:bg-slate-800 text-white p-2 rounded-lg text-xs border border-slate-700 transition-colors" title="Phóng to ảnh">
+              <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+            </button>
+          </div>
+
+          <!-- Caption & Engineering Explanation -->
+          <div class="mt-2.5 px-1 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
+            <p id="gallery-description" class="text-slate-300 font-medium text-[11px] sm:text-xs">
+              <strong>Phối cảnh tổng thể (Isometric View):</strong> Khung xe làm từ hợp kim nhôm Anode 6061 chịu lực, thiết kế bo tròn các góc để dễ dàng luồn lách qua các hàng ngô, mía rậm rạp mà không làm gãy cành.
+            </p>
+            <div class="shrink-0 flex items-center space-x-1.5">
+              <button onclick="prevGalleryImage()" class="p-1.5 px-3 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold text-white transition-colors">
+                <i class="fa-solid fa-chevron-left mr-1"></i> Trước
+              </button>
+              <button onclick="nextGalleryImage()" class="p-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-bold text-white transition-colors">
+                Sau <i class="fa-solid fa-chevron-right ml-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Key Hardware Specs (Col 4) -->
+        <div class="lg:col-span-4 space-y-2.5 sm:space-y-3">
+          
+          <div class="bg-slate-800/80 rounded-xl p-3.5 border border-slate-700/80 space-y-2">
+            <div class="text-emerald-400 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders"></i> Thông Số Kỹ Thuật Phần Cứng
+            </div>
+            
+            <div class="space-y-2 text-xs divide-y divide-slate-700/50">
+              <div class="flex justify-between items-center pt-1.5">
+                <span class="text-slate-400">Kích thước (D×R×C):</span>
+                <span class="font-mono font-bold text-white">600 × 420 × 350 mm</span>
+              </div>
+              <div class="flex justify-between items-center pt-1.5">
+                <span class="text-slate-400">Khoảng sáng gầm xe:</span>
+                <span class="font-mono font-bold text-emerald-400">280 mm (Vượt rãnh luống)</span>
+              </div>
+              <div class="flex justify-between items-center pt-1.5">
+                <span class="text-slate-400">Khối lượng toàn tải:</span>
+                <span class="font-mono font-bold text-white">&lt; 12.5 kg (Không nén đất)</span>
+              </div>
+              <div class="flex justify-between items-center pt-1.5">
+                <span class="text-slate-400">Vi xử lý AI On-board:</span>
+                <span class="font-mono font-bold text-amber-400">NVIDIA Jetson Orin NX (100T)</span>
+              </div>
+              <div class="flex justify-between items-center pt-1.5">
+                <span class="text-slate-400">Cảm biến Camera:</span>
+                <span class="font-mono font-bold text-sky-400">Kép AR0234 120fps Global</span>
+              </div>
+              <div class="flex justify-between items-center pt-1.5">
+                <span class="text-slate-400">Module Định Vị:</span>
+                <span class="font-mono font-bold text-emerald-400">Holybro RTK NEO-F9P (±2cm)</span>
+              </div>
+              <div class="flex justify-between items-center pt-1.5">
+                <span class="text-slate-400">Thời lượng pin LiFePO4:</span>
+                <span class="font-mono font-bold text-white">4 - 5 giờ liên tục / lần sạc</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Note -->
+          <div class="bg-emerald-950/40 border border-emerald-500/30 p-3 rounded-xl text-[11px] text-emerald-300">
+            <i class="fa-solid fa-circle-check text-emerald-400 mr-1"></i>
+            Tối ưu chuyên biệt cho địa hình đất gồ ghề và rãnh luống cây trồng hẹp (60–80cm) tại Việt Nam.
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 10 Thumbnail Strip (Swipeable on Mobile) -->
+      <div class="mt-4 sm:mt-6">
+        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+          <span>Chọn góc nhìn / Bản vẽ kỹ thuật (10 hình ảnh):</span>
+          <span class="text-[10px] text-slate-500">Vuốt ngang để xem thêm &rarr;</span>
+        </div>
+        
+        <div id="thumb-carousel" class="flex space-x-2.5 overflow-x-auto pb-2 scrollbar-none snap-x">
+          <!-- Dynamically populated thumbnails -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= 4-STEP CLOSING THE LOOP ================= -->
+  <section id="solution" class="py-10 sm:py-16 bg-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-8 sm:mb-12 space-y-2">
+        <span class="text-emerald-600 text-[10px] sm:text-xs font-extrabold uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">Quy Trình Khép Kín</span>
+        <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900">4 Bước Từ Quét Luống Tới Xử Lý Cục Bộ</h2>
+        <p class="text-slate-600 text-xs sm:text-base">
+          Xe robot chỉ làm nhiệm vụ trinh sát lập bản đồ, người nông dân cầm điện thoại đi thẳng tới vị trí cần làm cỏ hoặc trị bệnh, không mất công dò tìm.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+        
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-300 transition-all">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-base mb-2.5">1</div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1">Xe Tự Hành Quét Luống</h3>
+          <p class="text-slate-600 text-xs leading-relaxed">
+            Xe robot nhỏ gọn luồn lách theo từng luống cây ziczac mà không làm dập thân lá hay nén dẽ mặt đất.
+          </p>
+        </div>
+
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-300 transition-all">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-base mb-2.5">2</div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1">Camera Kép 120fps & AI</h3>
+          <p class="text-slate-600 text-xs leading-relaxed">
+            Chụp liên tục 2 bên hông cây tầm thấp không bị rung nhòe, Jetson Orin phân loại cỏ dại và sâu bệnh trong 15ms.
+          </p>
+        </div>
+
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-300 transition-all">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-base mb-2.5">3</div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1">Lập Bản Đồ Nhiệt Vệ Tinh</h3>
+          <p class="text-slate-600 text-xs leading-relaxed">
+            Module RTK khóa tọa độ sai số 2cm, tạo các quầng nhiệt đỏ rực nổi bật trên ảnh vệ tinh thực tế của lô rẫy.
+          </p>
+        </div>
+
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs hover:border-emerald-300 transition-all">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-base mb-2.5">4</div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900 mb-1">Đi Thẳng Tới Vị Trí Xử Lý</h3>
+          <p class="text-slate-600 text-xs leading-relaxed">
+            Nông dân mở web app trên điện thoại, la bàn GPS dẫn đường thẳng tới đúng quầng điểm nóng để nhổ cỏ hoặc xịt thuốc.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= ROI CALCULATOR ================= -->
+  <section id="roi" class="py-10 sm:py-16 bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-10 space-y-1.5">
+        <span class="text-emerald-600 text-[10px] sm:text-xs font-extrabold uppercase tracking-widest bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full">Hiệu Quả Kinh Tế</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Tính Nhanh Hoàn Vốn (ROI)</h2>
+        <p class="text-slate-600 text-xs sm:text-sm">Kéo chọn diện tích nông trại để xem số ngày công và chi phí tiết kiệm được.</p>
+      </div>
+
+      <div class="max-w-3xl mx-auto bg-slate-50 p-4 sm:p-8 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+          
+          <div class="md:col-span-7 space-y-4">
+            <div>
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="text-xs sm:text-sm font-bold text-slate-900">Diện tích rẫy ngô / mía / sắn:</label>
+                <span class="text-base sm:text-lg font-black text-emerald-600 font-mono"><span id="slider-val">25</span> Hecta</span>
+              </div>
+              <input type="range" id="roi-slider" min="5" max="100" step="5" value="25" oninput="updateRoiCalculation(this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+              <div class="flex justify-between text-[10px] text-slate-500 mt-1 font-mono">
+                <span>5 ha</span>
+                <span class="font-bold text-emerald-700">25 ha (Trang trại chuẩn)</span>
+                <span>100 ha</span>
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs sm:text-sm font-bold text-slate-900 block mb-1">Loại cây trồng chủ lực:</label>
+              <select id="crop-select" onchange="updateRoiCalculation(document.getElementById('roi-slider').value)" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-emerald-500 font-medium">
+                <option value="ngo">Cây Ngô (Bắp) - Rãnh luống 65–70cm</option>
+                <option value="san">Cây Sắn (Mì) - Rãnh luống 70–80cm</option>
+                <option value="mia">Cây Mía Đường - Rãnh luống 70cm</option>
+                <option value="dudu">Cây Đu Đủ - Rãnh luống 80cm</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="md:col-span-5 bg-emerald-50/80 p-4 sm:p-5 rounded-xl border border-emerald-200 space-y-2.5">
+            <div>
+              <div class="text-[11px] text-slate-600 font-medium">Tiết kiệm công lao động / vụ:</div>
+              <div class="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
+                <span id="roi-days-saved" class="text-emerald-700">24</span> ngày công
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-emerald-200/80">
+              <div class="text-[11px] text-slate-600 font-medium">Chi phí thuốc & nhân công tiết kiệm:</div>
+              <div class="text-lg sm:text-xl font-black text-amber-700 mt-0.5">
+                <span id="roi-money-saved">35.000.000</span> VNĐ
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-emerald-200/80">
+              <div class="text-[11px] text-slate-600 font-medium">Thời gian hoàn vốn dự tính:</div>
+              <div class="text-lg sm:text-xl font-black text-sky-700 mt-0.5">
+                <span id="roi-payback">8.5</span> tháng
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MOBILE FLOATING BOTTOM BAR (CỰC KỲ GỌN GÀNG) ================= -->
+  <div class="md:hidden fixed bottom-0 inset-x-0 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-4 py-2.5 z-40 flex items-center justify-between shadow-2xl text-white">
+    <button onclick="togglePickingMode()" id="mob-btn-pick" class="flex-1 mr-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1.5 active:scale-95 shadow-md">
+      <i class="fa-solid fa-location-crosshairs text-xs"></i>
+      <span>Chọn Ô Ruộng</span>
+    </button>
+    
+    <button onclick="startHeatmapScanning()" id="mob-btn-scan" class="flex-1 mr-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 rounded-xl text-xs flex items-center justify-center space-x-1.5 active:scale-95 shadow-md shadow-emerald-600/30">
+      <i id="mobile-bar-icon" class="fa-solid fa-play text-xs"></i>
+      <span id="mobile-bar-text">Quét Luống</span>
+    </button>
+    
+    <button onclick="toggleMobileConfigSheet()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold p-2.5 px-3 rounded-xl text-xs border border-slate-700 active:scale-95" title="Tùy chỉnh luống & xoay">
+      <i class="fa-solid fa-sliders"></i>
+    </button>
+  </div>
+
+  <!-- Mobile Config Bottom Sheet (Ẩn gọn gàng, bấm nút chỉnh mới hiện) -->
+  <div id="mob-config-sheet" class="hidden md:hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-end" onclick="toggleMobileConfigSheet()">
+    <div class="w-full bg-slate-900 border-t border-slate-700 rounded-t-3xl p-4 space-y-3.5 text-white" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-sliders"></i> Tùy Chỉnh Ô Quét Thửa Ruộng
+        </span>
+        <button onclick="toggleMobileConfigSheet()" class="text-slate-400 hover:text-white p-1 text-sm font-bold">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Quick size -->
+      <div>
+        <div class="text-[11px] text-slate-400 font-medium mb-1.5">Quy mô diện tích:</div>
+        <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+          <button onclick="setFieldSizePreset(60, 50, 0.6); toggleMobileConfigSheet();" class="py-2 rounded-xl bg-slate-800 hover:bg-emerald-600 border border-slate-700">0.6 ha</button>
+          <button onclick="setFieldSizePreset(85, 70, 1.2); toggleMobileConfigSheet();" class="py-2 rounded-xl bg-emerald-600 border border-emerald-500">1.2 ha (Chuẩn)</button>
+          <button onclick="setFieldSizePreset(130, 105, 2.5); toggleMobileConfigSheet();" class="py-2 rounded-xl bg-slate-800 hover:bg-emerald-600 border border-slate-700">2.5 ha</button>
+        </div>
+      </div>
+
+      <!-- Quick Rotate -->
+      <div>
+        <div class="text-[11px] text-slate-400 font-medium mb-1.5">Xoay hướng hàng luống:</div>
+        <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+          <button onclick="rotateField(-15)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center gap-1">
+            <i class="fa-solid fa-rotate-left"></i> Xoay trái -15°
+          </button>
+          <button onclick="rotateField(15)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center gap-1">
+            Xoay phải +15° <i class="fa-solid fa-rotate-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <button onclick="focusFieldCloseUp(); toggleMobileConfigSheet();" class="w-full py-2.5 rounded-xl bg-sky-600 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md">
+        <i class="fa-solid fa-bullseye"></i> Focus Cận Cảnh Ô Ruộng
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= LIGHTBOX MODAL FOR 3D IMAGES ================= -->
+  <div id="lightbox-modal" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-2 sm:p-4 backdrop-blur-md" onclick="closeLightbox()">
+    <div class="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+      <button onclick="closeLightbox()" class="absolute -top-10 right-0 text-white hover:text-rose-400 text-2xl font-bold p-1">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <img id="lightbox-img" src="" class="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl border border-slate-700">
+      <div id="lightbox-caption" class="text-white text-xs sm:text-sm font-medium mt-2 text-center bg-black/70 px-4 py-1.5 rounded-full border border-slate-700"></div>
+    </div>
+  </div>
+
+    <!-- FARMER FIELD GUIDANCE MODAL (Khi người dân chạm điểm nóng) -->
+  <div id="farmer-guide-modal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeFarmerGuide()">
+    <div class="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xl border border-slate-200" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-location-dot"></i>
+          </span>
+          <div>
+            <div id="farmer-target-title" class="font-black text-slate-900 text-sm sm:text-base">Ổ Cỏ Lồng Vực (Luống 2)</div>
+            <div id="farmer-coords-sub" class="text-[10px] font-mono text-emerald-700 font-bold">Tọa độ RTK: 21.24882° N, 103.98540° E (±2cm)</div>
+          </div>
+        </div>
+        <button onclick="closeFarmerGuide()" class="text-slate-400 hover:text-slate-700 p-1 text-lg font-bold">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Human Walking Guidance Box -->
+      <div class="bg-emerald-50 border-2 border-emerald-400 p-3 rounded-2xl space-y-1 text-xs text-slate-800">
+        <div class="flex items-center justify-between font-bold text-emerald-800">
+          <span class="flex items-center gap-1.5">
+            <i class="fa-solid fa-person-walking text-base text-emerald-600"></i> HƯỚNG DẪN DẪN ĐƯỜNG CHO BÁC NÔNG DÂN
+          </span>
+          <span id="farmer-dist-badge" class="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded-full font-mono">Cách 28 mét</span>
+        </div>
+        <p id="farmer-walk-instruction" class="text-xs font-semibold text-slate-700 leading-relaxed pt-0.5">
+          Bác đi từ đầu bờ, bước dọc theo rãnh <strong>Luống số 2</strong> khoảng <strong>35 bước chân</strong> về phía trước là tới ngay ổ cỏ dại này.
+        </p>
+      </div>
+
+      <!-- AI Camera Evidence Snapshot -->
+      <div class="grid grid-cols-12 gap-3 items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+        <div class="col-span-5 relative rounded-lg overflow-hidden aspect-square border border-slate-300">
+          <img id="farmer-evidence-img" src="" class="w-full h-full object-cover" alt="Ảnh cây cỏ thật do xe chụp">
+          <div class="absolute bottom-1 left-1 bg-black/70 text-white font-mono text-[8px] px-1 rounded">Ảnh Camera AI</div>
+        </div>
+        <div class="col-span-7 space-y-1.5 text-xs">
+          <div>Loại dịch hại: <strong id="farmer-weed-name" class="text-rose-600 font-bold">Cỏ lồng vực phát triển dày</strong></div>
+          <div>Mật độ phát hiện: <span class="font-bold text-slate-800">18 - 22 khóm / m²</span></div>
+          <div>Độ tin cậy AI: <span class="text-emerald-700 font-bold font-mono">96.2% (Đã xác thực)</span></div>
+          <div class="bg-amber-100 border border-amber-300 text-amber-900 p-1.5 rounded text-[11px] font-medium leading-tight">
+            💡 <strong>Khuyến cáo xử lý:</strong> Nhổ tay tận gốc hoặc dùng bình xịt thuốc cục bộ ngay tại ổ này, không cần phun tràn lan cả ruộng.
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button onclick="startNavigationCompass()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+        <i class="fa-solid fa-compass text-emerald-400 text-sm animate-spin" style="animation-duration: 4s;"></i>
+        <span>Mở La Bàn Dẫn Đường Trực Tiếp Trên Điện Thoại</span>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="py-6 bg-slate-100 border-t border-slate-200 text-center text-xs text-slate-600">
+    <div class="max-w-7xl mx-auto px-4 space-y-1">
+      <p class="font-semibold text-slate-700">© 2026 MicroScout-AI. Dự án VietFuture 2026.</p>
+      <p class="text-[10px] text-slate-500">Hệ Thống Xe Trinh Sát Lập Bản Đồ Nhiệt Vệ Tinh Google Hybrid (Heatmap GIS) • Make in Vietnam</p>
+    </div>
+  </footer>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    /* ==========================================================================
+       1. 3D BLUEPRINT GALLERY (10 IMAGES FROM XeTrinhSatAI_10anh)
+       ========================================================================== */
+    const galleryItems = [
+      {
+        file: 'XeTrinhSatAI_10anh/01_tong_the.png',
+        title: 'Phối Cảnh Tổng Thể 3D (Isometric View)',
+        desc: 'Thiết kế tổng thể khí động học tối ưu cho nông nghiệp. Khung gầm hợp kim nhôm Anode 6061, chiều rộng chỉ 42cm luồn lách qua các hàng cây mà không gãy cành.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/02_goc_sau.png',
+        title: 'Góc Sau & Hệ Thống Truyền Động Gầm',
+        desc: 'Góc nhìn từ phía sau thể hiện khoảng sáng gầm xe lớn (28cm), cơ cấu truyền động 4 bánh độc lập mô-men xoắn cao vượt bùn trơn và rãnh luống.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/03_hinh_chieu_canh.png',
+        title: 'Hình Chiếu Cạnh (Side View & Dims)',
+        desc: 'Bản vẽ kỹ thuật hình chiếu cạnh với kích thước chiều dài 600mm, trọng tâm thấp chống lật khi leo dốc luống 25 độ.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/04_hinh_chieu_truoc.png',
+        title: 'Hình Chiếu Trước (Front View & Sensors)',
+        desc: 'Hình chiếu trước cho thấy cụm camera kép và hệ thống đèn LED chiếu sáng hỗ trợ quét liên tục cả trong bóng râm rậm rạp.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/05_hinh_chieu_bang.png',
+        title: 'Hình Chiếu Bằng (Top View & RTK Mount)',
+        desc: 'Hình chiếu bằng thể hiện vị trí lắp đặt anten RTK xoắn ốc chống nhiễu trên nóc xe, cân bằng tải trọng tâm.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/06_chu_thich.png',
+        title: 'Bản Vẽ Kỹ Thuật Bóc Tách Chú Thích',
+        desc: 'Sơ đồ chi tiết chỉ rõ từng linh kiện: Vỏ composite bảo vệ, ESC điều khiển động cơ, Bộ nguồn ổn áp DC-DC, Hub giao tiếp CAN-Bus.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/07_anh_no.png',
+        title: 'Phối Cảnh Nổ Linh Kiện (Exploded View)',
+        desc: 'Mô hình tháo rời trực quan chứng minh tính module hóa cao, dễ dàng bảo trì thay thế linh kiện ngay tại hiện trường nông trại.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/08_cat_bo.png',
+        title: 'Mặt Cắt Bổ Kết Cấu Kháng Nước IP67',
+        desc: 'Bản vẽ cắt bổ cho thấy gioăng cao su silicone kín nước, bảo vệ toàn bộ linh kiện điện tử khi hoạt động dưới mưa phùn và bùn đất.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/09_bo_tri_ben_trong.png',
+        title: 'Bố Trí Bo Mạch AI Jetson & Nguồn Pin',
+        desc: 'Khoang bên trong bố trí module NVIDIA Jetson Orin NX (100 TOPS) tản nhiệt nhôm thụ động và khối pin LiFePO4 dung lượng cao.'
+      },
+      {
+        file: 'XeTrinhSatAI_10anh/10_chi_tiet_camera.png',
+        title: 'Cận Cảnh Cụm Camera Công Nghiệp 120fps',
+        desc: 'Cụm camera Global Shutter AR0234 góc rộng chĩa ngang luống, chống rung cơ học, chụp sắc nét không mờ nhòe ở vận tốc 1.5 m/s.'
+      }
+    ];
+
+    let currentGalleryIndex = 0;
+
+    function initGallery() {
+      const carouselEl = document.getElementById('thumb-carousel');
+      if (!carouselEl) return;
+      carouselEl.innerHTML = '';
+
+      galleryItems.forEach((item, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `thumb-btn shrink-0 w-20 sm:w-24 aspect-video rounded-lg overflow-hidden border-2 border-slate-700 bg-slate-800 transition-all opacity-70 hover:opacity-100 ${idx === 0 ? 'active' : ''}`;
+        btn.innerHTML = `<img src="${item.file}" alt="${item.title}" class="w-full h-full object-cover">`;
+        btn.onclick = () => setGalleryIndex(idx);
+        carouselEl.appendChild(btn);
+      });
+      updateGalleryDisplay();
+    }
+
+    function setGalleryIndex(idx) {
+      currentGalleryIndex = idx;
+      updateGalleryDisplay();
+    }
+
+    function prevGalleryImage() {
+      currentGalleryIndex = (currentGalleryIndex - 1 + galleryItems.length) % galleryItems.length;
+      updateGalleryDisplay();
+    }
+
+    function nextGalleryImage() {
+      currentGalleryIndex = (currentGalleryIndex + 1) % galleryItems.length;
+      updateGalleryDisplay();
+    }
+
+    function updateGalleryDisplay() {
+      const cur = galleryItems[currentGalleryIndex];
+      const mainImg = document.getElementById('main-gallery-img');
+      if (mainImg) mainImg.src = cur.file;
+
+      const badgeIdx = document.getElementById('gallery-index-badge');
+      if (badgeIdx) badgeIdx.innerText = `${String(currentGalleryIndex + 1).padStart(2, '0')} / ${galleryItems.length}`;
+
+      const badgeTitle = document.getElementById('gallery-title-badge');
+      if (badgeTitle) badgeTitle.innerText = cur.title;
+
+      const descEl = document.getElementById('gallery-description');
+      if (descEl) descEl.innerHTML = `<strong>${cur.title}:</strong> ${cur.desc}`;
+
+      const thumbBtns = document.querySelectorAll('.thumb-btn');
+      thumbBtns.forEach((btn, i) => {
+        if (i === currentGalleryIndex) {
+          btn.classList.add('active');
+          btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    function openLightbox(imgSrc) {
+      const modal = document.getElementById('lightbox-modal');
+      const lightImg = document.getElementById('lightbox-img');
+      const cap = document.getElementById('lightbox-caption');
+      lightImg.src = imgSrc;
+      cap.innerText = galleryItems[currentGalleryIndex].title;
+      modal.classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox-modal').classList.add('hidden');
+    }
+
+    /* ==========================================================================
+       2. PROVINCE DATABASE & GOOGLE HYBRID SATELLITE ENGINE
+       ========================================================================== */
+    const provincePresets = {
+      sonla: {
+        id: 'sonla',
+        name: 'Sơn La',
+        fullName: 'Tỉnh Sơn La » Huyện Mai Sơn » Xã Cò Nòi',
+        center: [21.2488, 103.9852],
+        provZoom: 13,
+        fieldZoom: 18.5
+      },
+      thanhhoa: {
+        id: 'thanhhoa',
+        name: 'Thanh Hóa',
+        fullName: 'Tỉnh Thanh Hóa » Huyện Thọ Xuân » Thị trấn Lam Sơn',
+        center: [19.9210, 105.4145],
+        provZoom: 13,
+        fieldZoom: 18.5
+      },
+      tayninh: {
+        id: 'tayninh',
+        name: 'Tây Ninh',
+        fullName: 'Tỉnh Tây Ninh » Huyện Tân Châu » Xã Tân Hà',
+        center: [11.4160, 106.1220],
+        provZoom: 13,
+        fieldZoom: 18.5
+      },
+      lamdong: {
+        id: 'lamdong',
+        name: 'Lâm Đồng',
+        fullName: 'Tỉnh Lâm Đồng » Huyện Đơn Dương » Thị trấn Thạnh Mỹ',
+        center: [11.8320, 108.5260],
+        provZoom: 13,
+        fieldZoom: 18.5
+      },
+      daklak: {
+        id: 'daklak',
+        name: 'Đắk Lắk',
+        fullName: 'Tỉnh Đắk Lắk » Huyện Cư M\'gar » Xã Quảng Tiến',
+        center: [12.8250, 108.0650],
+        provZoom: 13,
+        fieldZoom: 18.5
+      },
+      dongnai: {
+        id: 'dongnai',
+        name: 'Đồng Nai',
+        fullName: 'Tỉnh Đồng Nai » Huyện Cẩm Mỹ » Xã Long Giao',
+        center: [10.8400, 107.2450],
+        provZoom: 13,
+        fieldZoom: 18.5
+      }
+    };
+
+    let activeProvinceKey = 'sonla';
+    let map;
+    let googleHybridLayer;
+    let heatLayer;
+    let roverMarker;
+    let roverPathPolyline;
+    let fieldPolygonLayer;
+    let centerHandleMarker;
+    let rowLinesGroup;
+    let beaconMarkersGroup;
+
+    // Interactive Field Parameters
+    let currentCenter = [21.2488, 103.9852];
+    let fieldWidthM = 85;
+    let fieldHeightM = 70;
+    let fieldAreaHa = 1.2;
+    let fieldAngleDeg = 0;
+    let fieldNumRows = 6;
+    let isPickingMode = false;
+
+    // Simulation State
+    let isScanning = false;
+    let simInterval = null;
+    let currentWaypointIdx = 0;
+    let simulatedWaypoints = [];
+    let heatDataPoints = [];
+    let dynamicHotspots = [];
+    let isMapScrollLocked = true;
+
+    function initMap() {
+      map = L.map('map', {
+        center: currentCenter,
+        zoom: 18.5,
+        zoomControl: true,
+        attributionControl: false,
+        scrollWheelZoom: false
+      });
+
+      // Google Hybrid Satellite: Real satellite images
+      googleHybridLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+        maxZoom: 20
+      }).addTo(map);
+
+      // Layer groups
+      rowLinesGroup = L.layerGroup().addTo(map);
+      beaconMarkersGroup = L.layerGroup().addTo(map);
+
+      // Bản đồ nhiệt tinh tế, nhẹ nhàng, bán kính nhỏ gọn không phình to
+      heatLayer = L.heatLayer([], {
+        radius: 11,
+        blur: 8,
+        maxZoom: 20,
+        max: 1.0,
+        minOpacity: 0.35,
+        gradient: {
+          0.30: 'rgba(250, 204, 21, 0.60)', // Vàng chanh nhẹ nhàng
+          0.60: 'rgba(251, 146, 60, 0.75)', // Cam san hô dịu
+          0.85: 'rgba(244, 63, 94, 0.85)',  // Đỏ hồng hoa đào (tinh tế, không bị gắt)
+          1.00: 'rgba(225, 29, 72, 0.95)'   // Đỏ thắm tâm điểm nóng
+        }
+      }).addTo(map);
+
+      // Tự động thu nhỏ bán kính theo zoom để điểm nóng luôn nhỏ gọn bám sát luống
+      map.on('zoomend', () => {
+        const z = map.getZoom();
+        let r = 11;
+        if (z >= 19) r = 13;
+        else if (z === 18) r = 10;
+        else if (z === 17) r = 7;
+        else r = 5;
+        if (heatLayer) {
+          heatLayer.setOptions({ radius: r, blur: Math.round(r * 0.75) });
+        }
+      });
+
+      // Rover Custom Marker with Radar Pulse
+      const roverIcon = L.divIcon({
+        className: 'custom-rover-pin',
+        html: `<div class="relative w-8 h-8 flex items-center justify-center">
+                 <div class="absolute inset-0 rounded-full bg-blue-500/40 pulse-marker"></div>
+                 <div class="w-7 h-7 rounded-full bg-blue-600 border-2 border-white shadow-xl flex items-center justify-center text-white text-[11px] z-10">
+                   <i class="fa-solid fa-robot"></i>
+                 </div>
+               </div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+
+      roverMarker = L.marker(currentCenter, { icon: roverIcon, zIndexOffset: 2000 }).addTo(map);
+
+      // Breadcrumb path polyline
+      roverPathPolyline = L.polyline([], {
+        color: '#38bdf8',
+        weight: 3,
+        opacity: 0.85,
+        dashArray: '4, 6'
+      }).addTo(map);
+
+      // Click anywhere on map to reposition the scanning box!
+      map.on('click', (e) => {
+        handleMapClick(e.latlng.lat, e.latlng.lng);
+      });
+
+      // Draw initial field
+      recalculateAndDrawField();
+      focusFieldCloseUp();
+      hidePickingBanner();
+
+      // Auto-pin to User's Current GPS Location immediately!
+      requestUserLocation(true);
+    }
+
+    function requestUserLocation(isAutoInit = false) {
+      const badge = document.getElementById('badge-admin-location');
+      const sub = document.getElementById('gps-coords-sub');
+
+      if (badge) badge.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-xs"></i> Đang xác định vị trí GPS của bạn...`;
+
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            applyUserGpsLocation(lat, lng, pos.coords.accuracy);
+          },
+          (err) => {
+            console.warn("GPS Geolocation error/denied:", err);
+            // Default preset coordinate (fallback)
+            if (badge) badge.innerText = "Vị trí chuẩn: Mai Sơn, Sơn La";
+            if (sub) sub.innerText = `Tọa độ ghim: ${currentCenter[0].toFixed(5)}° N, ${currentCenter[1].toFixed(5)}° E (Bấm 'Lấy Vị Trí Của Tôi' để cấp quyền GPS)`;
+            if (!isAutoInit) {
+              alert("Không lấy được vị trí GPS tự động. Vui lòng bấm 'Cho phép' khi trình duyệt hỏi quyền truy cập vị trí.");
+            }
+          },
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        );
+      } else {
+        if (badge) badge.innerText = "Trình duyệt không hỗ trợ định vị GPS.";
+      }
+    }
+
+    function applyUserGpsLocation(lat, lng, accuracy) {
+      currentCenter = [lat, lng];
+      if (isScanning) resetHeatmapSimulation();
+
+      if (map) {
+        map.flyTo(currentCenter, 18.5, { duration: 1.2 });
+      }
+      recalculateAndDrawField();
+
+      const badge = document.getElementById('badge-admin-location');
+      const sub = document.getElementById('gps-coords-sub');
+      const accText = accuracy ? ` (Độ chính xác: ±${Math.round(accuracy)}m)` : '';
+
+      if (badge) badge.innerText = `Vị trí hiện tại: ${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E`;
+      if (sub) sub.innerText = `Đã tự động ghim ô quét & xe trinh sát tại đây${accText}`;
+
+      logScanEvent(`[GPS Hiện Tại] Đã tự động ghim ô quét tại vị trí của bạn: ${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E.`);
+
+      // Reverse geocode via Nominatim to get Vietnamese location name if online
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.display_name) {
+            const parts = data.display_name.split(',').slice(0, 3).join(',');
+            if (badge) badge.innerText = `Vị trí hiện tại: ${parts}`;
+          }
+        })
+        .catch(() => {});
+    }
+
+    function jumpToProvince(provKey) {
+      if (!provincePresets[provKey]) return;
+      activeProvinceKey = provKey;
+      const p = provincePresets[provKey];
+
+      // Update button highlights
+      ['sonla', 'thanhhoa', 'tayninh', 'lamdong', 'daklak', 'dongnai'].forEach(k => {
+        const btn = document.getElementById(`btn-prov-${k}`);
+        if (btn) {
+          btn.className = k === provKey ? 
+            'shrink-0 px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold transition-all hover:bg-emerald-500 flex items-center gap-1 shadow-xs' : 
+            'shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold transition-all flex items-center gap-1';
+        }
+      });
+
+      // Update Administrative Breadcrumb
+      document.getElementById('badge-admin-location').innerText = p.fullName;
+
+      // Move center
+      currentCenter = [p.center[0], p.center[1]];
+      if (isScanning) resetHeatmapSimulation();
+
+      map.flyTo(currentCenter, p.fieldZoom, { duration: 1.2 });
+      recalculateAndDrawField();
+
+      logScanEvent(`[Chuyển tỉnh] Đã bay đến ${p.fullName}. Bản đồ vệ tinh hiển thị rõ địa danh.`);
+    }
+
+    function setZoomMode(mode) {
+      const p = provincePresets[activeProvinceKey] || { provZoom: 13, fieldZoom: 18.5 };
+      const btnProv = document.getElementById('btn-zoom-prov');
+      const btnField = document.getElementById('btn-zoom-field');
+
+      if (mode === 'province') {
+        map.setZoom(p.provZoom);
+        btnProv.className = 'px-2 py-0.5 rounded bg-emerald-600 text-white text-[11px] font-bold transition-all';
+        btnField.className = 'px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold transition-all';
+        logScanEvent(`[Tầm nhìn toàn tỉnh] Hiển thị bao quát ranh giới Tỉnh ${p.name} và các huyện lân cận.`);
+      } else {
+        map.setZoom(p.fieldZoom);
+        btnField.className = 'px-2 py-0.5 rounded bg-emerald-600 text-white text-[11px] font-bold transition-all';
+        btnProv.className = 'px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold transition-all';
+        logScanEvent(`[Tầm nhìn cận cảnh] Phóng to chi tiết thửa ruộng và rãnh luống canh tác.`);
+      }
+    }
+
+    function searchLocationCustom() {
+      const query = document.getElementById('input-search-location').value.trim();
+      if (!query) return;
+
+      logScanEvent(`[Đang tìm kiếm] "${query}"...`);
+
+      // Geocode via Nominatim OSM
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&countrycodes=vn&q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            const first = data[0];
+            const lat = parseFloat(first.lat);
+            const lon = parseFloat(first.lon);
+
+            currentCenter = [lat, lon];
+            map.flyTo(currentCenter, 16, { duration: 1.5 });
+            document.getElementById('badge-admin-location').innerText = first.display_name.split(',').slice(0, 3).join(',');
+            recalculateAndDrawField();
+            logScanEvent(`[Tìm thấy] Đã bay đến: ${first.display_name}`);
+          } else {
+            alert(`Không tìm thấy địa điểm "${query}". Hãy thử gõ tên Tỉnh (ví dụ: Sơn La, Thanh Hóa, Gia Lai, Đắk Lắk).`);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert(`Đang tìm vị trí theo bộ từ khóa nội bộ...`);
+          // Fallback search in preset names
+          for (let k in provincePresets) {
+            if (provincePresets[k].name.toLowerCase().includes(query.toLowerCase())) {
+              jumpToProvince(k);
+              return;
+            }
+          }
+        });
+    }
+
+    function handleMapClick(lat, lng) {
+      if (isScanning) {
+        logScanEvent('[Thông báo] Đang quét trinh sát. Bấm "Đặt Lại" trước khi chọn vùng mới.');
+        return;
+      }
+
+      currentCenter = [lat, lng];
+      recalculateAndDrawField();
+      logScanEvent(`[Đã chọn ô mới] Tọa độ tâm: ${lat.toFixed(5)}° N, ${lng.toFixed(5)}° E. Xe đã sẵn sàng tại Luống 1!`);
+
+      if (isPickingMode) {
+        togglePickingMode();
+      }
+    }
+
+    function togglePickingMode() {
+      isPickingMode = !isPickingMode;
+      const banner = document.getElementById('banner-picking-guide');
+      const btn = document.getElementById('btn-pick-mode');
+      const mapContainer = document.getElementById('map');
+
+      if (isPickingMode) {
+        banner.classList.remove('hidden');
+        btn.classList.add('ring-2', 'ring-amber-300', 'bg-amber-600');
+        mapContainer.classList.add('picking-cursor');
+      } else {
+        banner.classList.add('hidden');
+        btn.classList.remove('ring-2', 'ring-amber-300', 'bg-amber-600');
+        mapContainer.classList.remove('picking-cursor');
+      }
+    }
+
+    function hidePickingBanner() {
+      document.getElementById('banner-picking-guide').classList.add('hidden');
+    }
+
+    function setFieldSizePreset(widthM, heightM, areaHa) {
+      if (isScanning) resetHeatmapSimulation();
+      fieldWidthM = widthM;
+      fieldHeightM = heightM;
+      fieldAreaHa = areaHa;
+
+      const b06 = document.getElementById('btn-size-06');
+      const b12 = document.getElementById('btn-size-12');
+      const b25 = document.getElementById('btn-size-25');
+      if (b06) b06.className = areaHa === 0.6 ? 'px-2 py-0.5 rounded bg-emerald-600 text-white font-bold transition-all' : 'px-2 py-0.5 rounded text-slate-300 hover:text-white hover:bg-slate-700 font-bold transition-all';
+      if (b12) b12.className = areaHa === 1.2 ? 'px-2 py-0.5 rounded bg-emerald-600 text-white font-bold transition-all' : 'px-2 py-0.5 rounded text-slate-300 hover:text-white hover:bg-slate-700 font-bold transition-all';
+      if (b25) b25.className = areaHa === 2.5 ? 'px-2 py-0.5 rounded bg-emerald-600 text-white font-bold transition-all' : 'px-2 py-0.5 rounded text-slate-300 hover:text-white hover:bg-slate-700 font-bold transition-all';
+
+      recalculateAndDrawField();
+      focusFieldCloseUp();
+      logScanEvent(`[Đổi quy mô] Đã đặt diện tích ô quét: ${areaHa.toFixed(1)} ha (${widthM}m × ${heightM}m) - Đã tự động focus cận cảnh.`);
+    }
+
+    function focusFieldCloseUp() {
+      if (fieldPolygonLayer && map) {
+        map.fitBounds(fieldPolygonLayer.getBounds(), { padding: [50, 50], maxZoom: 18.5 });
+      }
+    }
+
+    function rotateField(deltaDeg) {
+      if (isScanning) resetHeatmapSimulation();
+      fieldAngleDeg = (fieldAngleDeg + deltaDeg + 360) % 360;
+      document.getElementById('label-field-angle').innerText = `${fieldAngleDeg}°`;
+      recalculateAndDrawField();
+      logScanEvent(`[Xoay luống] Góc nghiêng luống hiện tại: ${fieldAngleDeg}° (khớp hướng ruộng).`);
+    }
+
+    function setRowCount(count) {
+      if (isScanning) resetHeatmapSimulation();
+      fieldNumRows = count;
+      document.getElementById('btn-rows-4').className = count === 4 ? 'px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold' : 'px-1.5 py-0.5 rounded text-slate-300 hover:text-white';
+      document.getElementById('btn-rows-6').className = count === 6 ? 'px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold' : 'px-1.5 py-0.5 rounded text-slate-300 hover:text-white';
+      document.getElementById('btn-rows-8').className = count === 8 ? 'px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold' : 'px-1.5 py-0.5 rounded text-slate-300 hover:text-white';
+      recalculateAndDrawField();
+      logScanEvent(`[Số luống] Đã chia thửa ruộng thành ${count} luống canh tác.`);
+    }
+
+    /* ==========================================================================
+       3. GEOMETRY COMPUTATION & WAYPOINTS
+       ========================================================================== */
+    function recalculateAndDrawField() {
+      setupFarmerMarker();
+      rowLinesGroup.clearLayers();
+      beaconMarkersGroup.clearLayers();
+      if (fieldPolygonLayer) map.removeLayer(fieldPolygonLayer);
+      if (centerHandleMarker) map.removeLayer(centerHandleMarker);
+      if (heatLayer) heatLayer.setLatLngs([]);
+      heatDataPoints = [];
+      roverPathPolyline.setLatLngs([]);
+
+      const cLat = currentCenter[0];
+      const cLng = currentCenter[1];
+
+      document.getElementById('label-field-coords').innerText = `${cLat.toFixed(5)}° N, ${cLng.toFixed(5)}° E`;
+      document.getElementById('label-field-area').innerText = `${fieldAreaHa.toFixed(1)} ha`;
+      document.getElementById('tele-total-area').innerText = fieldAreaHa.toFixed(1);
+      const mTot = document.getElementById('mob-tele-total');
+      if (mTot) mTot.innerText = fieldAreaHa.toFixed(1);
+
+      const latDegPerM = 1.0 / 111320.0;
+      const lngDegPerM = 1.0 / (111320.0 * Math.cos(cLat * Math.PI / 180.0));
+
+      const rad = fieldAngleDeg * Math.PI / 180.0;
+      const cosA = Math.cos(rad);
+      const sinA = Math.sin(rad);
+
+      const hw = fieldWidthM / 2.0;
+      const hh = fieldHeightM / 2.0;
+
+      const localCorners = [
+        [-hw, -hh],
+        [hw, -hh],
+        [hw, hh],
+        [-hw, hh]
+      ];
+
+      const cornersLatLng = localCorners.map(([x, y]) => {
+        const rx = x * cosA - y * sinA;
+        const ry = x * sinA + y * cosA;
+        return [cLat + ry * latDegPerM, cLng + rx * lngDegPerM];
+      });
+
+      fieldPolygonLayer = L.polygon(cornersLatLng, {
+        color: '#10b981',
+        weight: 2.5,
+        fillColor: '#10b981',
+        fillOpacity: 0.12,
+        dashArray: '5, 5'
+      }).addTo(map);
+
+      const centerHandleIcon = L.divIcon({
+        className: 'custom-handle',
+        html: `<div class="w-6 h-6 rounded-full bg-amber-500 border-2 border-white shadow-xl flex items-center justify-center text-slate-950 text-[9px] font-bold cursor-move hover:scale-110 transition-transform" title="Kéo để di chuyển ô quét">
+                 <i class="fa-solid fa-arrows-up-down-left-right"></i>
+               </div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      });
+
+      centerHandleMarker = L.marker(currentCenter, {
+        icon: centerHandleIcon,
+        draggable: true,
+        zIndexOffset: 1200
+      }).addTo(map);
+
+      centerHandleMarker.on('dragend', (e) => {
+        const pos = e.target.getLatLng();
+        handleMapClick(pos.lat, pos.lng);
+      });
+
+      simulatedWaypoints = [];
+      const rowStep = fieldHeightM / fieldNumRows;
+
+      for (let r = 0; r < fieldNumRows; r++) {
+        const y = -hh + (r + 0.5) * rowStep;
+
+        const p1x = -hw, p1y = y;
+        const p2x = hw, p2y = y;
+
+        const rp1x = p1x * cosA - p1y * sinA;
+        const rp1y = p1x * sinA + p1y * cosA;
+
+        const rp2x = p2x * cosA - p2y * sinA;
+        const rp2y = p2x * sinA + p2y * cosA;
+
+        const pt1 = [cLat + rp1y * latDegPerM, cLng + rp1x * lngDegPerM];
+        const pt2 = [cLat + rp2y * latDegPerM, cLng + rp2x * lngDegPerM];
+
+        const rowLine = L.polyline([pt1, pt2], {
+          color: '#34d399',
+          weight: 1.5,
+          opacity: 0.7,
+          dashArray: '3, 4'
+        });
+        rowLinesGroup.addLayer(rowLine);
+
+        const numPts = 14;
+        const rowWaypoints = [];
+        for (let i = 0; i <= numPts; i++) {
+          const ratio = i / numPts;
+          const currX = p1x + ratio * (p2x - p1x);
+          const currY = y;
+
+          const rotX = currX * cosA - currY * sinA;
+          const rotY = currX * sinA + currY * cosA;
+
+          rowWaypoints.push({
+            lat: cLat + rotY * latDegPerM,
+            lng: cLng + rotX * lngDegPerM,
+            row: r + 1,
+            progress: ratio
+          });
+        }
+
+        if (r % 2 === 1) {
+          rowWaypoints.reverse();
+        }
+
+        simulatedWaypoints.push(...rowWaypoints);
+      }
+
+      generateDynamicHotspots();
+
+      if (simulatedWaypoints.length > 0) {
+        roverMarker.setLatLng([simulatedWaypoints[0].lat, simulatedWaypoints[0].lng]);
+      }
+    }
+
+    function generateDynamicHotspots() {
+      dynamicHotspots = [
+        {
+          row: Math.min(2, fieldNumRows),
+          progress: 0.35,
+          type: 'weed',
+          name: 'Ổ Cỏ Lồng Vực Dày',
+          intensity: 1.0,
+          conf: '96.2%',
+          desc: 'Mật độ 22 khóm/m² cỏ dại mọc dày giữa các hàng ngô non',
+          img: 'assets/evidence/01_co_long_vuc.jpg',
+          bbox: { top: '30%', left: '22%', width: '58%', height: '56%' },
+          marked: false
+        },
+        {
+          row: Math.min(3, fieldNumRows),
+          progress: 0.75,
+          type: 'stress',
+          name: 'Sâu Keo Mùa Thu Cắn Lá',
+          intensity: 0.80,
+          conf: '93.5%',
+          desc: 'Sâu keo ăn thủng lỗ lớn trên phiến lá và đục thân bẹ non',
+          img: 'assets/evidence/02_sau_keo_can_la.jpg',
+          bbox: { top: '22%', left: '36%', width: '48%', height: '54%' },
+          marked: false
+        },
+        {
+          row: Math.min(4, fieldNumRows),
+          progress: 0.40,
+          type: 'weed',
+          name: 'Cỏ Mần Trầu Gốc Cây',
+          intensity: 0.95,
+          conf: '95.1%',
+          desc: 'Cụm cỏ dại rễ chùm mọc sát gốc hút cạn dinh dưỡng',
+          img: 'assets/evidence/03_co_man_trau_goc.jpg',
+          bbox: { top: '35%', left: '15%', width: '55%', height: '55%' },
+          marked: false
+        }
+      ];
+
+      if (fieldNumRows >= 6) {
+        dynamicHotspots.push({
+          row: 5,
+          progress: 0.65,
+          type: 'stress',
+          name: 'Bệnh Đốm Lá & Cháy Lá',
+          intensity: 0.75,
+          conf: '91.8%',
+          desc: 'Bệnh đốm lá ngô (Northern Leaf Blight) gây hoại tử mô tế bào',
+          img: 'assets/evidence/04_benh_dom_la_ngo.jpg',
+          bbox: { top: '20%', left: '25%', width: '52%', height: '58%' },
+          marked: false
+        });
+      }
+    }
+
+    /* ==========================================================================
+       4. SIMULATION EXECUTION (QUÉT BẢN ĐỒ NHIỆT)
+       ========================================================================== */
+    function startHeatmapScanning() {
+      const btnText = document.getElementById('btn-start-text');
+      const btnIcon = document.getElementById('btn-start-icon');
+      const mobText = document.getElementById('mobile-bar-text');
+      const mobIcon = document.getElementById('mobile-bar-icon');
+
+      if (isScanning) {
+        clearInterval(simInterval);
+        isScanning = false;
+        btnText.innerText = 'Tiếp Tục Quét';
+        btnIcon.className = 'fa-solid fa-play text-xs';
+        mobText.innerText = 'Tiếp Tục';
+        mobIcon.className = 'fa-solid fa-play text-xs';
+        logScanEvent('[Tạm dừng] Đã tạm dừng quét trinh sát.');
+        return;
+      }
+
+      if (currentWaypointIdx >= simulatedWaypoints.length) {
+        resetHeatmapSimulation();
+      }
+
+      isScanning = true;
+      btnText.innerText = 'Tạm Dừng';
+      btnIcon.className = 'fa-solid fa-pause text-xs';
+      mobText.innerText = 'Tạm Dừng';
+      mobIcon.className = 'fa-solid fa-pause text-xs';
+
+      logScanEvent(`[Bắt đầu quét] Xe khởi hành trinh sát ${fieldNumRows} luống trong ô bạn đã chọn...`);
+
+      simInterval = setInterval(() => {
+        if (currentWaypointIdx >= simulatedWaypoints.length) {
+          clearInterval(simInterval);
+          isScanning = false;
+          btnText.innerText = 'Quét Lại';
+          btnIcon.className = 'fa-solid fa-rotate-right text-xs';
+          mobText.innerText = 'Quét Lại';
+          mobIcon.className = 'fa-solid fa-rotate-right text-xs';
+          const _mhud = document.getElementById('map-rover-hud'); if (_mhud) _mhud.innerText = 'Hoàn tất trinh sát! Bản đồ nhiệt điểm nóng đã sẵn sàng.';
+          logScanEvent('[Hoàn tất] Đã quét xong ô rẫy! Các quầng đỏ điểm nóng đã hiển thị rõ rệt trên ảnh vệ tinh.');
+          return;
+        }
+
+        const wp = simulatedWaypoints[currentWaypointIdx];
+        advanceScanStep(wp);
+
+        currentWaypointIdx++;
+      }, 300);
+    }
+
+    function advanceScanStep(wp) {
+      const currentPos = [wp.lat, wp.lng];
+      roverMarker.setLatLng(currentPos);
+      roverPathPolyline.addLatLng(currentPos);
+
+      const activeHotspot = findMatchingHotspot(wp);
+
+      if (activeHotspot) {
+        // Chỉ thêm đúng 1-2 điểm nhiệt nhỏ tại tâm ổ cỏ, không phát tán rộng làm phình to
+        heatDataPoints.push([wp.lat, wp.lng, activeHotspot.intensity]);
+        const dLat = (Math.random() - 0.5) * 0.00004;
+        const dLng = (Math.random() - 0.5) * 0.00004;
+        heatDataPoints.push([wp.lat + dLat, wp.lng + dLng, activeHotspot.intensity * 0.85]);
+
+        if (!activeHotspot.marked) {
+          activeHotspot.marked = true;
+          createHotspotBeacon(wp.lat, wp.lng, activeHotspot);
+        }
+
+        showEvidenceForHotspot(activeHotspot, wp);
+        logScanEvent(`[PHÁT HIỆN ĐIỂM NÓNG] Luống ${wp.row}: ${activeHotspot.name} (${activeHotspot.conf})!`);
+      }
+
+      heatLayer.setLatLngs(heatDataPoints);
+
+      const pct = Math.round(((currentWaypointIdx + 1) / simulatedWaypoints.length) * 100);
+      document.getElementById('tele-pct').innerText = `${pct}%`;
+      const currentAreaScanned = ((pct / 100) * fieldAreaHa).toFixed(1);
+      document.getElementById('tele-area').innerText = currentAreaScanned;
+      document.getElementById('tele-row-label').innerText = `Luống ${wp.row} / ${fieldNumRows}`;
+
+      // Update mobile compact telemetry strip
+      const mRow = document.getElementById('mob-tele-row');
+      if (mRow) mRow.innerText = `Luống ${wp.row}/${fieldNumRows}`;
+      const mArea = document.getElementById('mob-tele-area');
+      if (mArea) mArea.innerText = currentAreaScanned;
+      const mTotal = document.getElementById('mob-tele-total');
+      if (mTotal) mTotal.innerText = fieldAreaHa.toFixed(1);
+      document.getElementById('cam-hud-row').innerText = `CAM L - LUỐNG ${wp.row} (RTK FIX)`;
+      const _mhud = document.getElementById('map-rover-hud'); if (_mhud) _mhud.innerText = `Xe tại Luống ${wp.row} • RTK Centimet • Tốc độ 1.2 m/s`;
+
+      const weedCount = dynamicHotspots.filter(h => h.marked && h.type === 'weed').length;
+      const stressCount = dynamicHotspots.filter(h => h.marked && h.type === 'stress').length;
+      document.getElementById('tele-weed-count').innerText = weedCount;
+      document.getElementById('tele-stress-count').innerText = stressCount;
+      const mWeed = document.getElementById('mob-tele-weed');
+      if (mWeed) mWeed.innerText = weedCount;
+      const mStress = document.getElementById('mob-tele-stress');
+      if (mStress) mStress.innerText = stressCount;
+    }
+
+    function findMatchingHotspot(wp) {
+      for (let h of dynamicHotspots) {
+        if (h.row === wp.row && Math.abs(h.progress - wp.progress) < 0.08) {
+          return h;
+        }
+      }
+      return null;
+    }
+
+    function createHotspotBeacon(lat, lng, hotspot) {
+      const isWeed = hotspot.type === 'weed';
+      const colorBg = isWeed ? 'bg-rose-600' : 'bg-amber-500';
+      const icon = isWeed ? 'fa-fire' : 'fa-triangle-exclamation';
+      const badgeText = isWeed ? `🔴 Ổ Cỏ (Luống ${hotspot.row})` : `⚠️ Sâu Bệnh (L.${hotspot.row})`;
+
+      // Visual pin WITH CLEAR TEXT LABEL so farmers can read immediately!
+      const beaconIcon = L.divIcon({
+        className: 'custom-beacon',
+        html: `<div class="relative flex flex-col items-center cursor-pointer group -mt-4">
+                 <!-- Clear text label on top of dot -->
+                 <div class="bg-slate-900/90 text-white font-black text-[9px] px-1.5 py-0.5 rounded shadow-xl border border-white/80 whitespace-nowrap mb-0.5 flex items-center gap-1">
+                   <span>${badgeText}</span>
+                 </div>
+                 <!-- Glowing Beacon Dot -->
+                 <div class="relative flex items-center justify-center w-6 h-6">
+                   <div class="absolute inset-0 rounded-full ${colorBg}/60 hotspot-beacon"></div>
+                   <div class="w-5 h-5 rounded-full ${colorBg} text-white border-2 border-white shadow-lg flex items-center justify-center text-[9px] z-10">
+                     <i class="fa-solid ${icon}"></i>
+                   </div>
+                 </div>
+               </div>`,
+        iconSize: [80, 40],
+        iconAnchor: [40, 36]
+      });
+
+      const marker = L.marker([lat, lng], { icon: beaconIcon, zIndexOffset: 1500 });
+      marker.on('click', () => {
+        openFarmerGuideForHotspot(hotspot, { lat: lat, lng: lng, row: hotspot.row });
+      });
+
+      beaconMarkersGroup.addLayer(marker);
+    }
+
+    function showEvidenceForHotspot(hotspot, wp) {
+      document.getElementById('ev-grid-cell').innerText = `Luống ${wp.row} (${document.getElementById('badge-admin-location').innerText})`;
+      document.getElementById('ev-target').innerText = hotspot.name;
+      document.getElementById('ev-coords').innerText = `${wp.lat.toFixed(5)}° N, ${wp.lng.toFixed(5)}° E (±1.8cm)`;
+      document.getElementById('ev-confidence').innerText = `${hotspot.conf} (YOLOv8 Jetson)`;
+
+      const badge = document.getElementById('evidence-badge');
+      const bbox = document.getElementById('evidence-bbox');
+      const bboxLabel = document.getElementById('bbox-label');
+      const imgEl = document.getElementById('evidence-img');
+
+      imgEl.src = hotspot.img;
+      bbox.classList.remove('hidden');
+      if (hotspot.bbox) {
+        bbox.style.top = hotspot.bbox.top;
+        bbox.style.left = hotspot.bbox.left;
+        bbox.style.width = hotspot.bbox.width;
+        bbox.style.height = hotspot.bbox.height;
+      }
+
+      if (hotspot.type === 'weed') {
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> ĐIỂM NÓNG CỎ DẠI`;
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-700 border border-rose-200 flex items-center gap-1';
+        bbox.className = 'absolute border-2 border-rose-500 bg-rose-500/20 rounded pointer-events-none transition-all duration-300';
+        bboxLabel.className = 'absolute -top-4 left-0 bg-rose-600 text-white font-mono text-[8px] px-1 rounded font-bold';
+        bboxLabel.innerText = `${hotspot.name.toUpperCase()}: ${hotspot.conf}`;
+      } else {
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> CÂY BỆNH / SÂU HẠI`;
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 flex items-center gap-1';
+        bbox.className = 'absolute border-2 border-amber-500 bg-amber-500/20 rounded pointer-events-none transition-all duration-300';
+        bboxLabel.className = 'absolute -top-4 left-0 bg-amber-600 text-white font-mono text-[8px] px-1 rounded font-bold';
+        bboxLabel.innerText = `${hotspot.name.toUpperCase()}: ${hotspot.conf}`;
+      }
+    }
+
+    function resetHeatmapSimulation() {
+      clearInterval(simInterval);
+      isScanning = false;
+      currentWaypointIdx = 0;
+
+      document.getElementById('btn-start-text').innerText = 'Quét Vùng Này';
+      document.getElementById('btn-start-icon').className = 'fa-solid fa-play text-xs';
+      document.getElementById('mobile-bar-text').innerText = 'Quét';
+      document.getElementById('mobile-bar-icon').className = 'fa-solid fa-play text-xs';
+
+      beaconMarkersGroup.clearLayers();
+      roverPathPolyline.setLatLngs([]);
+      heatDataPoints = [];
+      if (heatLayer) heatLayer.setLatLngs([]);
+
+      dynamicHotspots.forEach(h => h.marked = false);
+
+      if (simulatedWaypoints.length > 0) {
+        roverMarker.setLatLng([simulatedWaypoints[0].lat, simulatedWaypoints[0].lng]);
+      }
+
+      document.getElementById('tele-row-label').innerText = `Luống 1 / ${fieldNumRows} (Sẵn sàng)`;
+      document.getElementById('tele-pct').innerText = '0%';
+      document.getElementById('tele-area').innerText = '0.0';
+      document.getElementById('tele-weed-count').innerText = '0';
+      document.getElementById('tele-stress-count').innerText = '0';
+      const mRow = document.getElementById('mob-tele-row');
+      if (mRow) mRow.innerText = `Luống 1/${fieldNumRows}`;
+      const mWeed = document.getElementById('mob-tele-weed');
+      if (mWeed) mWeed.innerText = '0';
+      const mStress = document.getElementById('mob-tele-stress');
+      if (mStress) mStress.innerText = '0';
+      const mArea = document.getElementById('mob-tele-area');
+      if (mArea) mArea.innerText = '0.0';
+      const _mhud = document.getElementById('map-rover-hud'); if (_mhud) _mhud.innerText = 'Ô quét sẵn sàng tại vị trí bạn chọn';
+
+      logScanEvent('[Đã đặt lại] Bản đồ nhiệt đã trở về ban đầu.');
+    }
+
+    function logScanEvent(msg) {
+      const logBox = document.getElementById('event-log');
+      const time = new Date().toLocaleTimeString('vi-VN');
+      const item = document.createElement('div');
+      item.className = 'text-slate-700 font-medium leading-tight';
+      item.innerHTML = `<span class="text-slate-400">[${time}]</span> ${msg}`;
+      logBox.prepend(item);
+    }
+
+    function navigateDirectToCell() {
+      const target = document.getElementById('ev-target').innerText;
+      const coords = document.getElementById('ev-coords').innerText;
+      const cell = document.getElementById('ev-grid-cell').innerText;
+
+      alert(`[ĐỊNH VỊ DẪN ĐƯỜNG LA BÀN GPS]\n\nĐích đến: ${cell}\nĐối tượng: ${target}\nTọa độ RTK: ${coords}\n\n-> Nông dân mở la bàn điện thoại đi thẳng tới ô quầng nhiệt này để xử lý điểm nóng!`);
+    }
+
+    /* ==========================================================================
+       5. MOBILE INTERACTIONS & UTILITIES
+       ========================================================================== */
+    function switchMobileTab(tab) {
+      const mapTabBtn = document.getElementById('tab-btn-map');
+      const visionTabBtn = document.getElementById('tab-btn-vision');
+      const mapContent = document.getElementById('mobile-tab-map-content');
+      const visionContent = document.getElementById('mobile-tab-vision-content');
+
+      if (tab === 'map') {
+        mapTabBtn.className = 'flex-1 py-2 text-center text-rose-600 border-b-2 border-rose-600 flex items-center justify-center gap-1';
+        visionTabBtn.className = 'flex-1 py-2 text-center text-slate-500 border-b-2 border-transparent flex items-center justify-center gap-1';
+        mapContent.classList.add('active');
+        visionContent.classList.remove('active');
+        if (map) map.invalidateSize();
+      } else {
+        visionTabBtn.className = 'flex-1 py-2 text-center text-rose-600 border-b-2 border-rose-600 flex items-center justify-center gap-1';
+        mapTabBtn.className = 'flex-1 py-2 text-center text-slate-500 border-b-2 border-transparent flex items-center justify-center gap-1';
+        visionContent.classList.add('active');
+        mapContent.classList.remove('active');
+      }
+    }
+
+    function toggleMapScrollLock() {
+      isMapScrollLocked = !isMapScrollLocked;
+      const icon = document.getElementById('icon-scroll-lock');
+      const text = document.getElementById('text-scroll-lock');
+
+      if (!isMapScrollLocked) {
+        map.scrollWheelZoom.enable();
+        map.dragging.enable();
+        icon.className = 'fa-solid fa-lock-open text-[9px] text-emerald-400';
+        text.innerText = 'Đã mở';
+      } else {
+        map.scrollWheelZoom.disable();
+        icon.className = 'fa-solid fa-lock text-[9px]';
+        text.innerText = 'Chạm xem map';
+      }
+    }
+
+    function toggleMobilePresentationMode() {
+      const elem = document.documentElement;
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => {
+          alert(`Không thể mở toàn màn hình: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    function updateRoiCalculation(val) {
+      document.getElementById('slider-val').innerText = val;
+      const ha = parseFloat(val);
+      const daysSaved = Math.round(ha * 0.96);
+      const moneySaved = Math.round(ha * 1400000);
+      const paybackMonths = (20 / (ha * 0.09)).toFixed(1);
+
+      document.getElementById('roi-days-saved').innerText = daysSaved;
+      document.getElementById('roi-money-saved').innerText = moneySaved.toLocaleString('vi-VN');
+      document.getElementById('roi-payback').innerText = Math.max(5.5, Math.min(14, paybackMonths));
+    }
+
+        function toggleMobileConfigSheet() {
+      const sheet = document.getElementById('mob-config-sheet');
+      if (sheet) sheet.classList.toggle('hidden');
+    }
+
+        /* ==========================================================================
+       6. BÁC NÔNG DÂN FIELD NAVIGATION & EVIDENCE
+       ========================================================================== */
+    let farmerMarker = null;
+    let farmerWalkingPath = null;
+    let selectedHotspotData = null;
+
+    function setupFarmerMarker() {
+      if (farmerMarker) map.removeLayer(farmerMarker);
+      if (farmerWalkingPath) map.removeLayer(farmerWalkingPath);
+
+      // Place farmer at bottom entrance of the field
+      const cLat = currentCenter[0];
+      const cLng = currentCenter[1];
+      const latDegPerM = 1.0 / 111320.0;
+      const farmerPos = [cLat - (fieldHeightM / 2 + 15) * latDegPerM, cLng];
+
+      const farmerIcon = L.divIcon({
+        className: 'custom-farmer-pin',
+        html: `<div class="flex flex-col items-center cursor-pointer">
+                 <div class="bg-blue-600 text-white font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg border border-white whitespace-nowrap mb-0.5 flex items-center gap-1">
+                   <span>👨‍🌾 Bác Nông Dân</span>
+                 </div>
+                 <div class="w-7 h-7 rounded-full bg-blue-600 text-white border-2 border-white shadow-xl flex items-center justify-center text-xs pulse-marker">
+                   <i class="fa-solid fa-person-walking"></i>
+                 </div>
+               </div>`,
+        iconSize: [90, 45],
+        iconAnchor: [45, 40]
+      });
+
+      farmerMarker = L.marker(farmerPos, { icon: farmerIcon, zIndexOffset: 1800 }).addTo(map);
+      farmerMarker.on('click', () => {
+        alert('👨‍🌾 Đây là vị trí của Bác Nông Dân tại đầu bờ ruộng!\nBác chạm vào bất kỳ ổ điểm nóng màu đỏ nào trên ruộng để nhận chỉ đường đi tới nhổ cỏ.');
+      });
+    }
+
+    function openFarmerGuideForHotspot(hotspot, pos) {
+      selectedHotspotData = { hotspot, pos };
+      showEvidenceForHotspot(hotspot, pos);
+
+      // Draw walking line from farmer to this hotspot along the field
+      if (farmerMarker && map) {
+        if (farmerWalkingPath) map.removeLayer(farmerWalkingPath);
+        
+        const fPos = farmerMarker.getLatLng();
+        const targetPos = [pos.lat, pos.lng];
+
+        // Route: from farmer -> row entrance -> hotspot
+        const routePoints = [
+          [fPos.lat, fPos.lng],
+          [fPos.lat, targetPos[1]],
+          targetPos
+        ];
+
+        farmerWalkingPath = L.polyline(routePoints, {
+          color: '#2563eb',
+          weight: 3.5,
+          dashArray: '5, 8',
+          opacity: 0.9
+        }).addTo(map);
+      }
+
+      // Populate Farmer Guidance Modal
+      const modal = document.getElementById('farmer-guide-modal');
+      const isWeed = hotspot.type === 'weed';
+      const steps = Math.round(25 + hotspot.row * 6);
+      const meters = Math.round(18 + hotspot.row * 4.5);
+
+      document.getElementById('farmer-target-title').innerText = isWeed ? `Ổ Cỏ Dại (Luống số ${pos.row})` : `Cụm Cây Bệnh (Luống số ${pos.row})`;
+      document.getElementById('farmer-coords-sub').innerText = `Tọa độ RTK: ${pos.lat.toFixed(5)}° N, ${pos.lng.toFixed(5)}° E (±2cm)`;
+      document.getElementById('farmer-dist-badge').innerText = `Cách ${meters} mét`;
+      document.getElementById('farmer-walk-instruction').innerHTML = `Bác đi từ đầu bờ ruộng, bước dọc theo rãnh <strong>Luống số ${pos.row}</strong> khoảng <strong>${steps} bước chân (${meters}m)</strong> về phía trước là tới ngay vị trí này.`;
+      
+      document.getElementById('farmer-evidence-img').src = hotspot.img;
+      document.getElementById('farmer-weed-name').innerText = hotspot.name;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeFarmerGuide() {
+      document.getElementById('farmer-guide-modal').classList.add('hidden');
+    }
+
+    function simulateFarmerWalkToNearest() {
+      const activeMarked = dynamicHotspots.find(h => h.marked);
+      if (activeMarked) {
+        const wp = simulatedWaypoints.find(w => w.row === activeMarked.row);
+        if (wp) {
+          openFarmerGuideForHotspot(activeMarked, wp);
+          return;
+        }
+      }
+      alert('👉 Bác hãy bấm nút "Quét Luống" để xe trinh sát phát hiện các ổ cỏ dại trước, sau đó chạm vào điểm đỏ để nhận hướng dẫn!');
+    }
+
+    function startNavigationCompass() {
+      if (!selectedHotspotData) return;
+      const h = selectedHotspotData.hotspot;
+      const p = selectedHotspotData.pos;
+      closeFarmerGuide();
+      alert(`🧭 [LA BÀN DẪN ĐƯỜNG TRỰC TIẾP]\n\nĐích đến: Luống số ${p.row} - ${h.name}\nTọa độ: ${p.lat.toFixed(6)}°, ${p.lng.toFixed(6)}°\n\n-> La bàn điện thoại đang chỉ hướng đi thẳng theo rãnh Luống ${p.row}!\nKhi bác tới gần trong vòng 1m, máy sẽ rung báo hiệu để bác nhìn xuống nhổ.`);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initMap();
+      initGallery();
+      updateRoiCalculation(25);
+    });
+  </script>
+</body>
+</html>

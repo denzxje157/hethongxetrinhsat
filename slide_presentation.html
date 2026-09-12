@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canva Pitch Deck | MicroScout-AI VietFuture 2026</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts: Montserrat & Plus Jakarta Sans (Canva font style) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b1120;
+      color: #1e293b;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    h1, h2, h3, .heading-font {
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    /* 16:9 Canva Canvas Frame */
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+
+    .slide-canva {
+      width: 100%;
+      max-width: 1220px;
+      aspect-ratio: 16 / 9;
+      background: #ffffff;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.8rem 4rem 1.8rem 4rem;
+    }
+
+    .slide-canva.active {
+      display: flex;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0.6; transform: scale(0.995); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Canva Style Top Accent Line */
+    .canva-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: #1e3a8a;
+    }
+
+    /* Canva Style Bottom Accent Bar */
+    .canva-bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 18px;
+      background: #1e3a8a;
+    }
+
+    /* Chevron style arrow for limitations flow */
+    .chevron-box {
+      clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%, 15px 50%);
+    }
+    .chevron-first {
+      clip-path: polygon(0% 0%, calc(100% - 15px) 0%, 100% 50%, calc(100% - 15px) 100%, 0% 100%);
+    }
+
+    @media print {
+      body { background: transparent !important; overflow: visible !important; }
+      .no-print { display: none !important; }
+      .viewport { padding: 0 !important; display: block !important; height: auto !important; }
+      .slide-canva {
+        display: flex !important;
+        page-break-after: always !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        box-shadow: none !important;
+        padding: 2.5rem 3.5rem !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= TOP TOOLBAR (NO-PRINT) ================= -->
+  <div class="no-print fixed top-4 left-0 right-0 z-50 flex justify-between items-center px-8 pointer-events-none">
+    <div class="pointer-events-auto bg-slate-900/90 text-white text-xs px-4 py-2 rounded-full border border-slate-700 shadow-xl flex items-center space-x-3">
+      <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+      <span class="font-extrabold tracking-wider">CANVA PRESENTATION</span>
+      <span class="text-slate-600">|</span>
+      <span class="text-slate-300">VietFuture 2026 Pitch Deck</span>
+    </div>
+
+    <div class="pointer-events-auto flex items-center space-x-2 bg-slate-900/90 px-3 py-1.5 rounded-full border border-slate-700 shadow-xl text-white text-xs">
+      <button onclick="prevSlide()" class="hover:bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center transition-all text-slate-300 hover:text-white" title="Slide trước (<-)"><i class="fa-solid fa-arrow-left"></i></button>
+      <span id="slide-num" class="font-extrabold px-3 font-mono text-blue-400 text-sm">1 / 10</span>
+      <button onclick="nextSlide()" class="hover:bg-slate-800 w-8 h-8 rounded-full flex items-center justify-center transition-all text-slate-300 hover:text-white" title="Slide sau (->)"><i class="fa-solid fa-arrow-right"></i></button>
+      <span class="text-slate-600">|</span>
+      <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold px-3.5 py-1.5 rounded-full transition-all flex items-center space-x-1.5 shadow-md">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span>Lưu PDF / In</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="viewport">
+
+    <!-- ================= SLIDE 1: BÌA (COVER GIỐNG THUMBNAIL 1) ================= -->
+    <div class="slide-canva active" data-slide="1">
+      <div class="canva-top-bar"></div>
+      
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <!-- Top Tagline -->
+        <div class="flex justify-between items-center border-b-2 border-slate-100 pb-2">
+          <span class="text-xs font-black tracking-widest text-[#1e3a8a] uppercase">CUỘC THI SÁNG TẠO & ĐỔI MỚI VIETFUTURE 2026</span>
+          <span class="text-xs font-bold text-slate-400">LĨNH VỰC: NÔNG NGHIỆP CÔNG NGHỆ CAO</span>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 my-auto items-center">
+          <div class="col-span-8 space-y-4">
+            <div class="inline-block bg-blue-50 text-[#1e3a8a] text-xs font-extrabold px-3 py-1 rounded border border-blue-200">
+              DỰ ÁN KHỞI NGHIỆP SỐ HÓA ĐỒNG RẪY
+            </div>
+            <h1 class="text-4xl lg:text-5xl font-black text-[#1e3a8a] tracking-tight leading-tight uppercase">
+              HỆ THỐNG XE TRINH SÁT <br>
+              <span class="text-emerald-600">LẬP BẢN ĐỒ CỎ DẠI</span> & <br>
+              <span class="text-amber-600">TÌNH TRẠNG CÂY</span>
+            </h1>
+            <p class="text-slate-600 text-base font-medium max-w-xl">
+              Ứng dụng Trí tuệ Nhân tạo Biên (Edge AI) và Định vị Centimet (GPS RTK) giải phóng sức lao động thăm rẫy trên các loại cây trồng theo hàng quy mô lớn.
+            </p>
+            <div class="flex items-center space-x-4 pt-2 text-xs font-bold text-slate-700">
+              <span class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded"><i class="fa-solid fa-microchip text-blue-600 mr-1.5"></i> NVIDIA 100 TOPS</span>
+              <span class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded"><i class="fa-solid fa-location-crosshairs text-blue-600 mr-1.5"></i> Holybro RTK ±2cm</span>
+              <span class="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded"><i class="fa-solid fa-video text-blue-600 mr-1.5"></i> AR0234 120fps</span>
+            </div>
+          </div>
+
+          <div class="col-span-4 flex justify-center">
+            <div class="w-64 h-64 bg-[#1e3a8a] text-white rounded-2xl p-6 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+              <div class="text-[10px] uppercase font-bold tracking-widest text-blue-200 border-b border-blue-400/40 pb-2">MICROSCOUT-AI</div>
+              <div class="text-center my-auto">
+                <i class="fa-solid fa-robot text-6xl text-emerald-400 mb-2"></i>
+                <div class="font-black text-xl tracking-tight">Make in Vietnam</div>
+                <div class="text-[11px] text-blue-200">Autonomous Agri-Rover</div>
+              </div>
+              <div class="text-[10px] text-center text-blue-300 font-mono">Precision Agriculture 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center text-xs text-slate-500 font-medium pb-2 border-t border-slate-100">
+          <span>Đơn vị thực hiện: <strong>Nhóm MicroScout-AI</strong></span>
+          <span>Tháng 9 / 2026</span>
+        </div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 2: THỐNG KÊ KHẢO SÁT (GIỐNG HỆT ẢNH 1 USER GỬI) ================= -->
+    <div class="slide-canva" data-slide="2">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <!-- Slide Header -->
+        <div class="border-b-2 border-[#1e3a8a] pb-2">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">THỐNG KÊ KHẢO SÁT & BÁO ĐỘNG DỊCH HẠI</h2>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 my-auto items-center">
+          <!-- Left: 4 News/Official Bulletin Clippings -->
+          <div class="col-span-7 space-y-3">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+              <i class="fa-solid fa-newspaper text-blue-600 mr-1"></i> Báo chí & Thông báo chính thức từ Bộ NN&PTNT:
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <!-- Clipping 1 -->
+              <div class="bg-slate-50 border border-slate-300 rounded p-2.5 shadow-xs space-y-1">
+                <div class="text-[10px] font-black text-red-700 uppercase flex items-center gap-1">
+                  <i class="fa-solid fa-triangle-exclamation"></i> CẢNH BÁO DỊCH HẠI
+                </div>
+                <div class="text-xs font-bold text-slate-900 leading-tight">Sâu keo mùa thu bùng phát trên 45.000 ha ngô miền Bắc</div>
+                <div class="text-[10px] text-slate-500 font-serif italic">Cục Bảo vệ Thực vật - Bộ NN&PTNT</div>
+              </div>
+
+              <!-- Clipping 2 -->
+              <div class="bg-slate-50 border border-slate-300 rounded p-2.5 shadow-xs space-y-1">
+                <div class="text-[10px] font-black text-blue-700 uppercase flex items-center gap-1">
+                  <i class="fa-solid fa-chart-line"></i> BÁO CÁO THỐNG KÊ
+                </div>
+                <div class="text-xs font-bold text-slate-900 leading-tight">Cỏ dại xâm lấn làm giảm 20–30% năng suất sắn và mía</div>
+                <div class="text-[10px] text-slate-500 font-serif italic">Viện KHKT Nông nghiệp Miền Nam</div>
+              </div>
+
+              <!-- Clipping 3 -->
+              <div class="bg-slate-50 border border-slate-300 rounded p-2.5 shadow-xs space-y-1">
+                <div class="text-[10px] font-black text-amber-700 uppercase flex items-center gap-1">
+                  <i class="fa-solid fa-clock"></i> THỰC TẾ ĐỒNG RUỘNG
+                </div>
+                <div class="text-xs font-bold text-slate-900 leading-tight">Nông dân mất 3–4 ngày lội bộ kiểm tra mỗi hecta rẫy</div>
+                <div class="text-[10px] text-slate-500 font-serif italic">Khảo sát thực địa tại Sơn La, Gia Lai</div>
+              </div>
+
+              <!-- Clipping 4 -->
+              <div class="bg-slate-50 border border-slate-300 rounded p-2.5 shadow-xs space-y-1">
+                <div class="text-[10px] font-black text-emerald-700 uppercase flex items-center gap-1">
+                  <i class="fa-solid fa-bottle-droplet"></i> LÃNG PHÍ VẬT TƯ
+                </div>
+                <div class="text-xs font-bold text-slate-900 leading-tight">70% thuốc BVTV bị phun xịt tràn lan do thiếu tọa độ</div>
+                <div class="text-[10px] text-slate-500 font-serif italic">Tạp chí Nông nghiệp & Phát triển NT</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Bar Chart Canvas (Giống hệt biểu đồ trong ảnh 1) -->
+          <div class="col-span-5 bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
+            <div class="text-xs font-extrabold text-[#1e3a8a] text-center uppercase">
+              Tỷ lệ bỏ sót dịch hại theo mùa vụ khi thăm thủ công (%)
+            </div>
+
+            <!-- Simulated SVG Bar Chart -->
+            <div class="h-44 w-full flex items-end justify-between px-4 pb-2 border-b border-slate-300 relative">
+              <!-- Grid lines -->
+              <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
+                <div class="border-b border-slate-400 w-full"></div>
+                <div class="border-b border-slate-400 w-full"></div>
+                <div class="border-b border-slate-400 w-full"></div>
+                <div class="border-b border-slate-400 w-full"></div>
+              </div>
+
+              <!-- Bar 1 -->
+              <div class="flex flex-col items-center space-y-1 z-10 w-12">
+                <span class="text-[10px] font-bold text-slate-600">62%</span>
+                <div class="w-9 bg-[#1e3a8a] rounded-t" style="height: 95px;"></div>
+                <span class="text-[10px] text-slate-600 font-medium">Mùa đông</span>
+              </div>
+
+              <!-- Bar 2 -->
+              <div class="flex flex-col items-center space-y-1 z-10 w-12">
+                <span class="text-[10px] font-bold text-slate-600">45%</span>
+                <div class="w-9 bg-[#2563eb] rounded-t" style="height: 70px;"></div>
+                <span class="text-[10px] text-slate-600 font-medium">Mùa xuân</span>
+              </div>
+
+              <!-- Bar 3 -->
+              <div class="flex flex-col items-center space-y-1 z-10 w-12">
+                <span class="text-[10px] font-black text-red-600">82%</span>
+                <div class="w-9 bg-[#0284c7] rounded-t" style="height: 125px;"></div>
+                <span class="text-[10px] text-slate-600 font-extrabold">Mùa hè</span>
+              </div>
+
+              <!-- Bar 4 -->
+              <div class="flex flex-col items-center space-y-1 z-10 w-12">
+                <span class="text-[10px] font-bold text-slate-600">32%</span>
+                <div class="w-9 bg-[#93c5fd] rounded-t" style="height: 50px;"></div>
+                <span class="text-[10px] text-slate-600 font-medium">Mùa thu</span>
+              </div>
+            </div>
+
+            <div class="text-[10px] text-center text-slate-500 italic">
+              Nguồn: Tổng hợp khảo sát 120 hộ trồng ngô và sắn tại Tây Bắc & Tây Nguyên
+            </div>
+          </div>
+        </div>
+
+        <div class="text-right text-xs text-slate-400 font-mono pb-2">02 / 10</div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 3: KHẢO SÁT THỰC ĐỊA & NỖI ĐAU ================= -->
+    <div class="slide-canva" data-slide="3">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <div class="border-b-2 border-[#1e3a8a] pb-2 flex justify-between items-end">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">KHẢO SÁT THỰC ĐỊA & NỖI ĐAU NÔNG DÂN</h2>
+          <span class="text-xs text-slate-500 font-bold">VẤN ĐỀ CỐT LÕI</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6 my-auto">
+          <!-- Card 1 -->
+          <div class="bg-white border border-slate-300 rounded-xl p-5 shadow-xs space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-red-100 text-red-700 flex items-center justify-center font-bold text-base">
+              <i class="fa-solid fa-person-hiking"></i>
+            </div>
+            <h3 class="text-base font-black text-slate-900">1. Lội Bộ Thăm Rẫy Kiệt Sức</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Dưới thời tiết nắng gắt 38°C, người nông dân phải lội bộ trung bình <strong>15–20 km mỗi ngày</strong> giữa các luống ngô, sắn rậm rạp. Rất dễ bị say nắng và kiệt sức.
+            </p>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bg-white border border-slate-300 rounded-xl p-5 shadow-xs space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-base">
+              <i class="fa-solid fa-eye-slash"></i>
+            </div>
+            <h3 class="text-base font-black text-slate-900">2. Bỏ Sót Cỏ Dại & Bệnh Bẹ Lá</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Cỏ dại và sâu bệnh nấp ở <strong>tầng lá thấp sát gốc</strong> (cách mặt đất 10–30cm). Đi bộ lướt qua bằng mắt thường sẽ không thấy, chỉ 1 tuần sau đã lây lan thành dịch.
+            </p>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="bg-white border border-slate-300 rounded-xl p-5 shadow-xs space-y-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-base">
+              <i class="fa-solid fa-map-location"></i>
+            </div>
+            <h3 class="text-base font-black text-slate-900">3. Thiếu Bản Đồ Chỉ Dẫn Tọa Độ</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Nông dân chỉ nhớ vùng bị bệnh "mơ hồ ở khoảng giữa rẫy". Khi mang bình xịt quay lại thì mất công tìm kiếm hoặc đành <strong>phun thuốc tràn lan gây tốn kém</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-blue-50 p-3 rounded border border-blue-200 flex justify-between items-center text-xs text-[#1e3a8a] font-bold">
+          <span><i class="fa-solid fa-bullseye mr-1"></i> Mục tiêu dự án: Số hóa việc đi thăm rẫy, cung cấp bản đồ chỉ dẫn có tọa độ để đi thẳng tới xử lý.</span>
+          <span class="text-slate-400 font-mono">03 / 10</span>
+        </div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 4: GIẢI PHÁP HIỆN TẠI (GIỐNG HỆT ẢNH 2 USER GỬI) ================= -->
+    <div class="slide-canva" data-slide="4">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <!-- Title & Quote -->
+        <div class="text-center space-y-1">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">GIẢI PHÁP HIỆN TẠI</h2>
+          <p class="text-xs text-slate-500 italic">
+            "Hiện nay, nông dân vẫn phụ thuộc 90% vào đi bộ thủ công hoặc các công cụ quét từ trên cao không nhìn thấy sâu bệnh bẹ lá"
+          </p>
+        </div>
+
+        <!-- 4 Rounded Cards with Colored Pill Headers (Giống hệt Ảnh 2) -->
+        <div class="grid grid-cols-4 gap-4 my-auto">
+          <!-- Card 1 (Navy Blue) -->
+          <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-[#1e3a8a] text-white text-center font-bold text-xs py-2.5 px-2">
+              Đi thăm rẫy thủ công
+            </div>
+            <div class="p-3 bg-slate-100 flex items-center justify-center h-28">
+              <i class="fa-solid fa-person-walking text-4xl text-slate-400"></i>
+            </div>
+            <div class="p-3 text-[11px] text-slate-600 space-y-1">
+              <div>• Lội bộ từng luống ngô, sắn</div>
+              <div>• Tốn sức, kiệt sức dưới nắng</div>
+            </div>
+          </div>
+
+          <!-- Card 2 (Sky Blue) -->
+          <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-[#0284c7] text-white text-center font-bold text-xs py-2.5 px-2">
+              Quét ảnh Drone trên cao
+            </div>
+            <div class="p-3 bg-slate-100 flex items-center justify-center h-28">
+              <i class="fa-solid fa-helicopter text-4xl text-slate-400"></i>
+            </div>
+            <div class="p-3 text-[11px] text-slate-600 space-y-1">
+              <div>• Bay chụp từ trên cao</div>
+              <div>• Chỉ thấy ngọn lá trên cùng</div>
+            </div>
+          </div>
+
+          <!-- Card 3 (Orange/Brown) -->
+          <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-[#ea580c] text-white text-center font-bold text-xs py-2.5 px-2">
+              Cảm biến cắm cố định
+            </div>
+            <div class="p-3 bg-slate-100 flex items-center justify-center h-28">
+              <i class="fa-solid fa-tower-broadcast text-4xl text-slate-400"></i>
+            </div>
+            <div class="p-3 text-[11px] text-slate-600 space-y-1">
+              <div>• Cọc cảm biến đo độ ẩm đất</div>
+              <div>• Cố định 1 chỗ, không cơ động</div>
+            </div>
+          </div>
+
+          <!-- Card 4 (Orange Light) -->
+          <div class="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden flex flex-col">
+            <div class="bg-[#f97316] text-white text-center font-bold text-xs py-2.5 px-2">
+              Xử lý & Phun xịt tràn lan
+            </div>
+            <div class="p-3 bg-slate-100 flex items-center justify-center h-28">
+              <i class="fa-solid fa-spray-can-sparkles text-4xl text-slate-400"></i>
+            </div>
+            <div class="p-3 text-[11px] text-slate-600 space-y-1">
+              <div>• Phun thuốc phủ toàn bộ rẫy</div>
+              <div>• Tốn kém hàng chục triệu tiền thuốc</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Big Down Arrow & Hạn chế Section (Giống hệt Ảnh 2) -->
+        <div class="space-y-2">
+          <div class="flex justify-center">
+            <i class="fa-solid fa-arrow-down text-2xl text-[#1e3a8a] animate-bounce"></i>
+          </div>
+          <div class="text-center font-black text-base text-[#1e3a8a] uppercase">Hạn Chế</div>
+
+          <!-- 4 Chevrons Flow -->
+          <div class="grid grid-cols-4 gap-2 text-xs">
+            <div class="bg-slate-100 p-2.5 rounded border-l-4 border-[#1e3a8a] space-y-0.5">
+              <strong class="text-slate-900 block text-[11px]">1. Đi bộ:</strong>
+              <p class="text-[10px] text-slate-600">Chi phí công cao, mất 3–4 ngày, dễ bỏ sót ổ dịch.</p>
+            </div>
+            <div class="bg-slate-100 p-2.5 rounded border-l-4 border-[#0284c7] space-y-0.5">
+              <strong class="text-slate-900 block text-[11px]">2. Drone trên cao:</strong>
+              <p class="text-[10px] text-slate-600">Không soi được bẹ lá và chân gốc, sai số GPS 1–3 mét.</p>
+            </div>
+            <div class="bg-slate-100 p-2.5 rounded border-l-4 border-[#ea580c] space-y-0.5">
+              <strong class="text-slate-900 block text-[11px]">3. Cảm biến cố định:</strong>
+              <p class="text-[10px] text-slate-600">Chỉ đo 1 điểm nhỏ, không phát hiện được cỏ dại xâm lấn.</p>
+            </div>
+            <div class="bg-slate-100 p-2.5 rounded border-l-4 border-[#f97316] space-y-0.5">
+              <strong class="text-slate-900 block text-[11px]">4. Phun tràn lan:</strong>
+              <p class="text-[10px] text-slate-600">Lãng phí 70% hóa chất, ô nhiễm đất và nguồn nước ngầm.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-right text-xs text-slate-400 font-mono pb-1">04 / 10</div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 5: GIẢI PHÁP ĐỀ XUẤT MICROSCOUT-AI ================= -->
+    <div class="slide-canva" data-slide="5">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <div class="border-b-2 border-[#1e3a8a] pb-2 flex justify-between items-end">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">GIẢI PHÁP ĐỀ XUẤT: MICROSCOUT-AI</h2>
+          <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">ĐỘT PHÁ CÔNG NGHỆ</span>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6 my-auto items-center">
+          <div class="col-span-7 space-y-3">
+            <div class="bg-white border-2 border-emerald-500 rounded-xl p-4 shadow-sm space-y-1">
+              <span class="text-xs font-black text-emerald-700 uppercase tracking-wider">ĐỊNH NGHĨA GIẢI PHÁP</span>
+              <p class="text-xs text-slate-700 leading-relaxed font-medium">
+                Hệ thống xe robot trinh sát nhỏ gọn đóng vai trò là <strong>"Người đi thăm rẫy số hóa"</strong>: tự động luồn lách qua các luống cây hẹp (50–80cm), quét camera 120fps và ghim tọa độ RTK centimet để tạo Bản đồ chỉ dẫn điểm nóng.
+              </p>
+            </div>
+
+            <div class="space-y-2 text-xs">
+              <div class="flex items-start gap-2 bg-slate-50 p-2.5 rounded border border-slate-200">
+                <i class="fa-solid fa-check-circle text-emerald-600 mt-0.5"></i>
+                <span><strong>Khung gầm UGV mini &lt;15kg:</strong> Không làm gãy thân cây non, không gây nén dẽ mặt đất.</span>
+              </div>
+              <div class="flex items-start gap-2 bg-slate-50 p-2.5 rounded border border-slate-200">
+                <i class="fa-solid fa-check-circle text-emerald-600 mt-0.5"></i>
+                <span><strong>Cụm 2 Camera AR0234 120fps:</strong> Màn trập toàn cục triệt mờ nhòe, soi trực diện bẹ lá và chân gốc.</span>
+              </div>
+              <div class="flex items-start gap-2 bg-slate-50 p-2.5 rounded border border-slate-200">
+                <i class="fa-solid fa-check-circle text-emerald-600 mt-0.5"></i>
+                <span><strong>GPS RTK Holybro NEO-F9P:</strong> Khóa tọa độ centimet (±2–3cm), không bị sai lệch tọa độ.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-span-5 space-y-2.5">
+            <div class="relative rounded-2xl overflow-hidden bg-slate-900 border-2 border-emerald-500 shadow-xl">
+              <img src="XeTrinhSatAI_10anh/01_tong_the.png" alt="Mô hình 3D Xe Trinh Sát" class="w-full h-44 object-cover">
+              <div class="absolute top-2 left-2 bg-emerald-600 text-white font-mono text-[9px] px-2 py-0.5 rounded font-bold uppercase">
+                MÔ HÌNH THỰC TẾ 3D
+              </div>
+              <div class="p-2.5 bg-slate-900/90 text-white text-[11px] flex justify-between items-center">
+                <span>Rộng 42cm • Nặng 12.5kg • IP67</span>
+                <span class="text-emerald-400 font-bold">Jetson 100T</span>
+              </div>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl text-xs text-slate-700 flex items-center gap-2">
+              <i class="fa-solid fa-microchip text-emerald-600 text-base"></i>
+              <div><strong>NVIDIA Jetson Orin NX (100 TOPS):</strong> Phân loại cỏ & sâu bệnh tầm thấp 120fps với độ chính xác >94%.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-right text-xs text-slate-400 font-mono pb-1">05 / 10</div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 6: QUY TRÌNH VẬN HÀNH (GIỐNG THUMBNAIL 7) ================= -->
+    <div class="slide-canva" data-slide="6">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <div class="border-b-2 border-[#1e3a8a] pb-2">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">QUY TRÌNH VẬN HÀNH 4 BƯỚC KHÉP KÍN</h2>
+        </div>
+
+        <div class="grid grid-cols-4 gap-4 my-auto">
+          <!-- Step 1 -->
+          <div class="bg-white border-2 border-[#1e3a8a] rounded-xl p-4 shadow-sm space-y-2 relative">
+            <span class="bg-[#1e3a8a] text-white text-xs font-black px-2.5 py-0.5 rounded">BƯỚC 1</span>
+            <div class="h-20 bg-slate-100 rounded flex items-center justify-center">
+              <i class="fa-solid fa-robot text-3xl text-slate-500"></i>
+            </div>
+            <h4 class="font-extrabold text-xs text-slate-900">Trinh sát luống hẹp</h4>
+            <p class="text-[10px] text-slate-600">Xe nhỏ gọn luồn lách giữa hàng ngô, sắn 50–80cm không làm gãy cây.</p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="bg-white border-2 border-[#1e3a8a] rounded-xl p-4 shadow-sm space-y-2 relative">
+            <span class="bg-[#1e3a8a] text-white text-xs font-black px-2.5 py-0.5 rounded">BƯỚC 2</span>
+            <div class="h-20 bg-slate-100 rounded flex items-center justify-center">
+              <i class="fa-solid fa-camera text-3xl text-slate-500"></i>
+            </div>
+            <h4 class="font-extrabold text-xs text-slate-900">Quét 2 hông & AI</h4>
+            <p class="text-[10px] text-slate-600">Cụm 2 camera 120fps soi bẹ lá, Jetson Orin phân tích tại chỗ &gt;90%.</p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="bg-white border-2 border-[#1e3a8a] rounded-xl p-4 shadow-sm space-y-2 relative">
+            <span class="bg-[#1e3a8a] text-white text-xs font-black px-2.5 py-0.5 rounded">BƯỚC 3</span>
+            <div class="h-20 bg-slate-100 rounded flex items-center justify-center">
+              <i class="fa-solid fa-location-crosshairs text-3xl text-slate-500"></i>
+            </div>
+            <h4 class="font-extrabold text-xs text-slate-900">Ghim tọa độ RTK</h4>
+            <p class="text-[10px] text-slate-600">Holybro NEO-F9P khóa tọa độ centimet (±2cm), đóng gói file bản đồ GeoJSON.</p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="bg-white border-2 border-[#1e3a8a] rounded-xl p-4 shadow-sm space-y-2 relative">
+            <span class="bg-[#1e3a8a] text-white text-xs font-black px-2.5 py-0.5 rounded">BƯỚC 4</span>
+            <div class="h-20 bg-slate-100 rounded flex items-center justify-center">
+              <i class="fa-solid fa-mobile-screen-button text-3xl text-slate-500"></i>
+            </div>
+            <h4 class="font-extrabold text-xs text-slate-900">Nhắm thẳng xử lý</h4>
+            <p class="text-[10px] text-slate-600">Nông dân mở app đi thẳng chân tới đúng vị trí để nhổ cỏ hoặc chăm sóc cây bệnh.</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-100 p-3 rounded border border-slate-200 text-xs text-slate-700 font-bold flex justify-between items-center">
+          <span><i class="fa-solid fa-arrows-rotate text-blue-600 mr-1.5"></i> Kết quả: Tiết kiệm 80% thời gian thăm rẫy, loại bỏ việc xử lý mò mẫm hay phun thuốc tràn lan.</span>
+          <span class="text-slate-400 font-mono">06 / 10</span>
+        </div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 7: BẢNG SO SÁNH GIẢI PHÁP (GIỐNG THUMBNAIL 8) ================= -->
+    <div class="slide-canva" data-slide="7">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <div class="border-b-2 border-[#1e3a8a] pb-2">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">BẢNG SO SÁNH CÁC PHƯƠNG PHÁP KIỂM TRA RẪY</h2>
+        </div>
+
+        <div class="my-auto overflow-hidden rounded-xl border border-slate-300 shadow-sm">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-[#1e3a8a] text-white text-[11px] uppercase tracking-wider">
+              <tr>
+                <th class="p-3.5">Tiêu chí so sánh</th>
+                <th class="p-3.5 font-medium text-slate-200">Đi thăm thủ công</th>
+                <th class="p-3.5 font-medium text-slate-200">Quét Drone trên cao</th>
+                <th class="p-3.5 font-black text-emerald-300 bg-blue-950">Xe MicroScout-AI</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">
+              <tr>
+                <td class="p-3 font-bold text-slate-900">Sức người & Thời gian</td>
+                <td class="p-3 text-slate-600">Rất mệt, mất 3–4 ngày lội rẫy</td>
+                <td class="p-3 text-slate-600">Nhanh nhưng phải có chứng chỉ bay</td>
+                <td class="p-3 font-bold text-emerald-800 bg-emerald-50/50">Tự động, tiết kiệm 80% thời gian</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-900">Khả năng soi bẹ lá & gốc</td>
+                <td class="p-3 text-slate-600">Dễ bỏ sót các ổ dịch nấp sâu</td>
+                <td class="p-3 text-slate-600">Không thể soi (bị lá ngọn che khuất)</td>
+                <td class="p-3 font-bold text-emerald-800 bg-emerald-50/50">Tốt nhất: Camera kép tầm thấp soi sát gốc</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-900">Độ chính xác tọa độ</td>
+                <td class="p-3 text-slate-600">Ước lượng mơ hồ bằng mắt thường</td>
+                <td class="p-3 text-slate-600">Sai số GPS từ 1 – 3 mét</td>
+                <td class="p-3 font-bold text-emerald-800 bg-emerald-50/50">Centimet: Sai số thực tế ±2–3 cm</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-900">Hiệu quả xử lý sau trinh sát</td>
+                <td class="p-3 text-slate-600">Mất công tìm lại hoặc phun tràn lan</td>
+                <td class="p-3 text-slate-600">Ảnh ghép phức tạp, khó tìm đúng cây</td>
+                <td class="p-3 font-bold text-emerald-800 bg-emerald-50/50">Mở app là đi thẳng tới điểm nóng xử lý</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-right text-xs text-slate-400 font-mono pb-1">07 / 10</div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 8: THƯƠNG MẠI HÓA & DÒNG TIỀN ================= -->
+    <div class="slide-canva" data-slide="8">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <div class="border-b-2 border-[#1e3a8a] pb-2 flex justify-between items-end">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">MÔ HÌNH THƯƠNG MẠI & TÀI CHÍNH (ROI)</h2>
+          <span class="text-xs text-blue-700 font-bold">KHẢ THI KINH DOANH</span>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6 my-auto items-center">
+          <!-- 3 Revenue Streams -->
+          <div class="col-span-7 space-y-3">
+            <div class="text-xs font-black text-slate-500 uppercase">3 Nguồn Dòng Tiền Độc Lập:</div>
+
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-start gap-3">
+              <div class="w-8 h-8 rounded bg-[#1e3a8a] text-white flex items-center justify-center font-bold text-xs shrink-0">B2B</div>
+              <div>
+                <strong class="text-xs text-slate-900 block">Bán thiết bị trực tiếp cho Trang Trại & HTX:</strong>
+                <p class="text-[11px] text-slate-600">Cung cấp trọn gói xe trinh sát + trạm RTK cho các đơn vị sở hữu rẫy &gt;20 hecta.</p>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-start gap-3">
+              <div class="w-8 h-8 rounded bg-sky-600 text-white flex items-center justify-center font-bold text-xs shrink-0">DỊCH VỤ</div>
+              <div>
+                <strong class="text-xs text-slate-900 block">Gói trinh sát & lập bản đồ theo mùa vụ:</strong>
+                <p class="text-[11px] text-slate-600">Dành cho các hộ nông dân quy mô vừa và nhỏ (3–10 ha), quét định kỳ 3–4 lần/vụ.</p>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 flex items-start gap-3">
+              <div class="w-8 h-8 rounded bg-purple-600 text-white flex items-center justify-center font-bold text-xs shrink-0">SaaS</div>
+              <div>
+                <strong class="text-xs text-slate-900 block">Thu phí phần mềm Cloud GIS Nông Nghiệp:</strong>
+                <p class="text-[11px] text-slate-600">Thu phí thuê bao hàng năm cho các doanh nghiệp chế biến theo dõi vùng nguyên liệu.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROI Box -->
+          <div class="col-span-5 bg-gradient-to-br from-[#1e3a8a] to-blue-900 text-white p-5 rounded-2xl shadow-xl text-center space-y-3">
+            <span class="text-xs font-bold uppercase tracking-widest text-emerald-300">Thời Gian Hoàn Vốn Đầu Tư (ROI)</span>
+            <div class="text-4xl font-black text-white">8 – 10 Tháng</div>
+            <p class="text-xs text-blue-200">Tính trên quy mô trang trại chuẩn 25 – 30 hecta.</p>
+            <div class="pt-2 border-t border-blue-400/30 text-left text-xs space-y-1 text-slate-200">
+              <div>✓ Tiết kiệm 35–40 triệu VNĐ tiền nhân công/vụ.</div>
+              <div>✓ Tránh thất thoát 15–20% sản lượng nông sản.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-right text-xs text-slate-400 font-mono pb-1">08 / 10</div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 9: QUY MÔ THỊ TRƯỜNG & TRIỂN KHAI ================= -->
+    <div class="slide-canva" data-slide="9">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <div class="border-b-2 border-[#1e3a8a] pb-2 flex justify-between items-end">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">QUY MÔ THỊ TRƯỜNG & KẾ HOẠCH TRIỂN KHAI</h2>
+          <span class="text-xs text-slate-500 font-bold">TAM - SAM - SOM</span>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6 my-auto items-center">
+          <div class="col-span-6 space-y-2.5">
+            <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+              <div class="text-xs font-black text-[#1e3a8a]">TAM (Tổng dung lượng thị trường): ~ 1.800 TỶ VNĐ</div>
+              <p class="text-[11px] text-slate-600 mt-0.5">Hơn 2 triệu hecta cây cạn theo hàng tại Việt Nam (Ngô 900.000 ha, Sắn 530.000 ha, Mía 260.000 ha, Đu đủ và rau màu).</p>
+            </div>
+
+            <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+              <div class="text-xs font-black text-blue-700">SAM (Thị trường mục tiêu trực tiếp): ~ 350 TỶ VNĐ</div>
+              <p class="text-[11px] text-slate-600 mt-0.5">Các Hợp tác xã và Trang trại lớn &gt;10ha tại các tỉnh trọng điểm: Sơn La, Gia Lai, Đắk Lắk, Đồng Nai, Tây Ninh.</p>
+            </div>
+
+            <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200">
+              <div class="text-xs font-black text-emerald-700">SOM (Thị phần mục tiêu 3 năm): ~ 25 TỶ VNĐ</div>
+              <p class="text-[11px] text-slate-600 mt-0.5">Cung cấp 300 xe trinh sát và triển khai 2.500 hecta dịch vụ số hóa rẫy.</p>
+            </div>
+          </div>
+
+          <div class="col-span-6 space-y-3">
+            <div class="text-xs font-black text-slate-500 uppercase">Kế hoạch triển khai thực địa:</div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-white border border-slate-300 rounded p-3 text-center space-y-1">
+                <i class="fa-solid fa-mountain text-2xl text-[#1e3a8a]"></i>
+                <div class="font-bold text-xs text-slate-900">Vùng Tây Bắc</div>
+                <div class="text-[10px] text-slate-500">Trọng điểm rẫy ngô (Sơn La, Điện Biên)</div>
+              </div>
+              <div class="bg-white border border-slate-300 rounded p-3 text-center space-y-1">
+                <i class="fa-solid fa-seedling text-2xl text-emerald-600"></i>
+                <div class="font-bold text-xs text-slate-900">Vùng Tây Nguyên</div>
+                <div class="text-[10px] text-slate-500">Trọng điểm sắn & đậu nành (Gia Lai, Đắk Lắk)</div>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed italic bg-blue-50 p-2 rounded border border-blue-100">
+              Tiềm năng mở rộng: Xuất khẩu công nghệ sang Lào, Thái Lan, Campuchia – nơi có hàng triệu hecta rẫy với bài toán thăm rẫy tương tự.
+            </p>
+          </div>
+        </div>
+
+        <div class="text-right text-xs text-slate-400 font-mono pb-1">09 / 10</div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+    <!-- ================= SLIDE 10: LỘ TRÌNH & ĐỘI NGŨ (GIỐNG THUMBNAIL 10) ================= -->
+    <div class="slide-canva" data-slide="10">
+      <div class="canva-top-bar"></div>
+
+      <div class="relative w-full h-full flex flex-col justify-between z-10">
+        <div class="border-b-2 border-[#1e3a8a] pb-2 flex justify-between items-end">
+          <h2 class="text-3xl font-black text-[#1e3a8a] uppercase tracking-wide">LỘ TRÌNH PHÁT TRIỂN & ĐỘI NGŨ THỰC HIỆN</h2>
+          <span class="text-xs text-slate-500 font-bold">KẾT THÚC</span>
+        </div>
+
+        <!-- Team Members (5 Boxes) -->
+        <div class="space-y-2 my-auto">
+          <div class="text-xs font-black text-slate-500 uppercase">5 Thành Viên Đa Ngành Phụ Trách:</div>
+          <div class="grid grid-cols-5 gap-3 text-center">
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1">
+              <div class="w-9 h-9 rounded-full bg-[#1e3a8a] text-white font-black text-xs flex items-center justify-center mx-auto">HA</div>
+              <div class="font-bold text-xs text-slate-900">Nguyễn Hoàng Anh</div>
+              <div class="text-[9px] font-bold text-blue-700 bg-blue-50 py-0.5 rounded">Leader & AI</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1">
+              <div class="w-9 h-9 rounded-full bg-sky-600 text-white font-black text-xs flex items-center justify-center mx-auto">TP</div>
+              <div class="font-bold text-xs text-slate-900">Nguyễn Trọng Phước</div>
+              <div class="text-[9px] font-bold text-sky-700 bg-sky-50 py-0.5 rounded">Cơ Khí & Nhúng</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1">
+              <div class="w-9 h-9 rounded-full bg-amber-600 text-white font-black text-xs flex items-center justify-center mx-auto">VN</div>
+              <div class="font-bold text-xs text-slate-900">Ngô Võ Nam</div>
+              <div class="text-[9px] font-bold text-amber-700 bg-amber-50 py-0.5 rounded">Camera & GPS RTK</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1">
+              <div class="w-9 h-9 rounded-full bg-purple-600 text-white font-black text-xs flex items-center justify-center mx-auto">VK</div>
+              <div class="font-bold text-xs text-slate-900">Hà Văn Kiên</div>
+              <div class="text-[9px] font-bold text-purple-700 bg-purple-50 py-0.5 rounded">Web GIS & Cloud</div>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1">
+              <div class="w-9 h-9 rounded-full bg-rose-600 text-white font-black text-xs flex items-center justify-center mx-auto">HP</div>
+              <div class="font-bold text-xs text-slate-900">Trần Hoài Phương</div>
+              <div class="text-[9px] font-bold text-rose-700 bg-rose-50 py-0.5 rounded">Truyền Thông</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Closing Banner -->
+        <div class="bg-[#1e3a8a] text-white p-4 rounded-xl flex items-center justify-between shadow-lg">
+          <div class="space-y-0.5">
+            <h4 class="font-black text-base text-emerald-400">MicroScout-AI • Tiên Phong Số Hóa Nông Nghiệp Việt</h4>
+            <p class="text-xs text-blue-100">Khát vọng giải phóng đôi chân người nông dân và thúc đẩy chuyển đổi số nông nghiệp xanh bền vững!</p>
+          </div>
+          <div class="bg-white text-[#1e3a8a] font-black text-xs px-4 py-2 rounded shadow">
+            Xin Cảm Ơn Ban Giám Khảo!
+          </div>
+        </div>
+
+        <div class="text-right text-xs text-slate-400 font-mono pb-1">10 / 10</div>
+      </div>
+
+      <div class="canva-bottom-bar"></div>
+    </div>
+
+  </div>
+
+  <!-- ================= KEYBOARD & BUTTON SCRIPT ================= -->
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 10;
+
+    function showSlide(index) {
+      if (index < 1) index = 1;
+      if (index > totalSlides) index = totalSlides;
+      currentSlide = index;
+
+      document.querySelectorAll('.slide-canva').forEach((el) => {
+        el.classList.remove('active');
+        if (parseInt(el.getAttribute('data-slide')) === currentSlide) {
+          el.classList.add('active');
+        }
+      });
+
+      document.getElementById('slide-num').innerText = `${currentSlide} / ${totalSlides}`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        showSlide(currentSlide + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        showSlide(currentSlide - 1);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      }
+    });
+  </script>
+</body>
+</html>

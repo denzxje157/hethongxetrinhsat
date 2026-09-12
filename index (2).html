@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mô hình Doanh thu - Hệ thống Xe Trinh Sát</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    canvas {
+      background: #ffffff;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      border-radius: 12px;
+      max-width: 100%;
+      height: auto;
+    }
+    .btn {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background-color: #15803d;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover { background-color: #166534; }
+  </style>
+</head>
+<body>
+
+  <canvas id="canvas" width="1366" height="768"></canvas>
+  <button class="btn" onclick="downloadImage()">Tải ảnh sơ đồ PNG</button>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Nền trắng tinh gọn
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Tiêu đề Slide
+    ctx.fillStyle = "#1e293b";
+    ctx.font = "bold 34px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("MÔ HÌNH DOANH THU & HỆ SINH THÁI GIÁ TRỊ", canvas.width / 2, 58);
+
+    // Hàm vẽ hình chữ nhật bo góc
+    function drawRoundedRect(x, y, w, h, r, fillColor, strokeColor, lineWidth = 1.5) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.arcTo(x + w, y, x + w, y + r, r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+      ctx.lineTo(x + r, y + h);
+      ctx.arcTo(x, y + h, x, y + h - r, r);
+      ctx.lineTo(x, y + r);
+      ctx.arcTo(x, y, x + r, y, r);
+      ctx.closePath();
+      if (fillColor) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+      }
+      if (strokeColor) {
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+      }
+    }
+
+    // Hàm vẽ mũi tên hai chiều kèm nhãn
+    function drawBidirectionalArrow(x1, y1, x2, y2, labelForward, labelBackward) {
+      ctx.strokeStyle = "#64748b";
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      // Đầu mũi tên 2 đầu
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      const headLen = 9;
+
+      // Mũi tên tới (x2, y2)
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+      ctx.fillStyle = "#64748b";
+      ctx.fill();
+
+      // Mũi tên lui (x1, y1)
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x1 + headLen * Math.cos(angle - Math.PI / 6), y1 + headLen * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(x1 + headLen * Math.cos(angle + Math.PI / 6), y1 + headLen * Math.sin(angle + Math.PI / 6));
+      ctx.fill();
+
+      // Nhãn trên đường nối
+      const midX = (x1 + x2) / 2;
+      const midY = (y1 + y2) / 2;
+
+      ctx.save();
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.shadowColor = "#ffffff";
+      ctx.shadowBlur = 4;
+
+      if (labelForward) ctx.fillText("→ " + labelForward, midX, midY - 6);
+      if (labelBackward) ctx.fillText("← " + labelBackward, midX, midY + 12);
+      ctx.restore();
+    }
+
+    // 1. CỘT NGUỒN THU BÊN TRÁI (3 Hộp)
+    const leftPillars = [
+      { title: "Dịch vụ quét (MaaS)", desc: "Khảo sát luống định kỳ theo vụ/hecta" },
+      { title: "Bán & Thuê Xe Robot", desc: "Cung cấp xe trinh sát + Module RTK" },
+      { title: "Thuê bao Bản đồ AI (SaaS)", desc: "Xuất dữ liệu chuẩn Shapefile/MAVLink" }
+    ];
+
+    leftPillars.forEach((p, idx) => {
+      const y = 140 + idx * 170;
+      drawRoundedRect(40, y, 190, 110, 10, "#f0fdf4", "#16a34a", 2);
+      
+      ctx.fillStyle = "#166534";
+      ctx.font = "bold 14px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(p.title, 135, y + 42);
+
+      ctx.fillStyle = "#4b5563";
+      ctx.font = "12px sans-serif";
+      const words = p.desc.split(" ");
+      ctx.fillText(words.slice(0, 4).join(" "), 135, y + 68);
+      ctx.fillText(words.slice(4).join(" "), 135, y + 86);
+    });
+
+    // 2. VÒNG TRÒN TRUNG TÂM (CORE HUB)
+    const centerX = 630;
+    const centerY = 410;
+    const centerRadius = 88;
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, centerRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "#15803d";
+    ctx.fill();
+    ctx.strokeStyle = "#bbf7d0";
+    ctx.lineWidth = 7;
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 15px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("HỆ THỐNG", centerX, centerY - 24);
+    ctx.fillText("XE TRINH SÁT", centerX, centerY - 4);
+    ctx.fillText("& BẢN ĐỒ SỐ HÓA", centerX, centerY + 16);
+    ctx.font = "11px sans-serif";
+    ctx.fillText("(Jetson + RTK cm)", centerX, centerY + 36);
+
+    // 3. CÁC ĐỐI TƯỢNG VỆ TINH XUNG QUANH
+    // Top-Left: Đội ngũ Kỹ thuật & R&D
+    drawRoundedRect(280, 130, 200, 80, 8, "#f8fafc", "#94a3b8");
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 14px sans-serif";
+    ctx.fillText("Đội ngũ Kỹ thuật & R&D", 380, 160);
+    ctx.font = "11px sans-serif";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText("Cải tiến AI & Vận hành mạng lưới", 380, 185);
+
+    // Bottom-Left: Đối tác Linh kiện & Trạm RTK
+    drawRoundedRect(280, 580, 200, 80, 8, "#f8fafc", "#94a3b8");
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 14px sans-serif";
+    ctx.fillText("Nhà Cung Ứng Linh Kiện", 380, 610);
+    ctx.font = "11px sans-serif";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText("Module RTK, Camera AR0234", 380, 635);
+
+    // Top-Right: Trang trại & Hợp tác xã (Khách hàng)
+    drawRoundedRect(1020, 130, 290, 85, 8, "#ecfdf5", "#059669");
+    ctx.fillStyle = "#065f46";
+    ctx.font = "bold 15px sans-serif";
+    ctx.fillText("Chủ Trang Trại / Hợp Tác Xã", 1165, 160);
+    ctx.font = "12px sans-serif";
+    ctx.fillStyle = "#047857";
+    ctx.fillText("Cây màu cạn (Ngô, sắn, đu đủ...)", 1165, 185);
+
+    // Mid-Right: Đơn vị Phun Drone & Xe Cơ giới (Đối tác thực thi)
+    drawRoundedRect(1020, 365, 290, 85, 8, "#eff6ff", "#3b82f6");
+    ctx.fillStyle = "#1e40af";
+    ctx.font = "bold 15px sans-serif";
+    ctx.fillText("Đội Phun Dịch Vụ (Drone / Xe)", 1165, 395);
+    ctx.font = "12px sans-serif";
+    ctx.fillStyle = "#2563eb";
+    ctx.fillText("Bên thứ ba nhận bản đồ để phun điểm", 1165, 420);
+
+    // Bottom-Right: Doanh nghiệp Nông dược / BVTV
+    drawRoundedRect(1020, 580, 290, 85, 8, "#faf5ff", "#a855f7");
+    ctx.fillStyle = "#6b21a8";
+    ctx.font = "bold 15px sans-serif";
+    ctx.fillText("Doanh Nghiệp Thuốc BVTV", 1165, 610);
+    ctx.font = "12px sans-serif";
+    ctx.fillStyle = "#7e22ce";
+    ctx.fillText("Phân tích dịch tễ & tài trợ dữ liệu", 1165, 635);
+
+    // 4. KẾT NỐI MŨI TÊN
+    // Hub <-> Đội ngũ Kỹ thuật
+    drawBidirectionalArrow(380, 210, centerX - 55, centerY - 65, "Tối ưu mô hình AI", "Dữ liệu thực địa");
+
+    // Hub <-> Nhà cung ứng
+    drawBidirectionalArrow(380, 580, centerX - 55, centerY + 65, "Chi phí vật tư", "Linh kiện chuẩn cm");
+
+    // Hub <-> Trang trại
+    drawBidirectionalArrow(centerX + 75, centerY - 45, 1020, 175, "Bản đồ cỏ & sâu bệnh", "Phí dịch vụ quét");
+
+    // Hub <-> Đội Drone/Xe phun
+    drawBidirectionalArrow(centerX + 88, centerY, 1020, 405, "Tệp Shapefile/MAVLink", "Phí bản quyền dữ liệu");
+
+    // Hub <-> DN Thuốc BVTV
+    drawBidirectionalArrow(centerX + 75, centerY + 45, 1020, 620, "Dữ liệu mật độ bệnh", "Hợp đồng khảo sát");
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.download = 'mo-hinh-doanh-thu-xe-trinh-sat.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script>
+</body>
+</html>

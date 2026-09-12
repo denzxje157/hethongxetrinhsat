@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quy Trình Thu Thập & Xử Lý Dữ Liệu Dual Cam 60FPS | MicroScout-AI</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #090d16;
+      color: #0f172a;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    h1, h2, h3, .heading-font {
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .font-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* 16:9 Standard Presentation Frame */
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.2rem;
+    }
+
+    .slide-frame {
+      width: 100%;
+      max-width: 1280px;
+      aspect-ratio: 16 / 9;
+      background: #ffffff;
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.7);
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.8rem 2.8rem 1.4rem 2.8rem;
+    }
+
+    .top-gradient-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #10b981 0%, #0284c7 40%, #8b5cf6 75%, #f59e0b 100%);
+    }
+
+    .bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background: #0f172a;
+    }
+
+    /* Connecting Flow Arrow Pill */
+    .flow-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+    }
+
+    @media print {
+      body { background: transparent !important; }
+      .no-print { display: none !important; }
+      .viewport { padding: 0 !important; }
+      .slide-frame { box-shadow: none !important; width: 100vw !important; height: 100vh !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Action Toolbar -->
+  <div class="no-print fixed top-3 right-6 z-50 flex items-center gap-2">
+    <button onclick="window.print()" class="bg-slate-900/90 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-1.5 rounded-full shadow-lg border border-slate-700 flex items-center gap-1.5 transition-all active:scale-95">
+      <i class="fa-solid fa-print text-emerald-400"></i>
+      <span>Lưu PDF / In Slide</span>
+    </button>
+  </div>
+
+  <div class="viewport">
+    <div class="slide-frame">
+      <div class="top-gradient-bar"></div>
+
+      <!-- 1. SLIDE HEADER -->
+      <div class="flex justify-between items-end border-b-2 border-slate-100 pb-2.5">
+        <div>
+          <div class="inline-flex items-center gap-2 text-emerald-600 font-extrabold text-[10px] tracking-widest uppercase bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full mb-1">
+            <i class="fa-brands fa-github text-xs"></i> Remote-Controlled-Agricultural-Scouting-Vehicle
+          </div>
+          <h1 class="text-2xl lg:text-3xl font-black text-slate-900 uppercase tracking-tight">
+            QUY TRÌNH THU THẬP & XỬ LÝ DỮ LIỆU DUAL CAMERA 60 FPS
+          </h1>
+          <p class="text-slate-500 text-xs font-medium">
+            Kiến trúc đa luồng (Multi-threading) khép kín từ trích xuất phần cứng, đẩy bộ đệm Queue, phân tách Frame đến xuất Video toàn cảnh.
+          </p>
+        </div>
+
+        <div class="text-right hidden sm:block">
+          <div class="font-code text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
+            1080p @ 60 FPS • Zero Drop
+          </div>
+          <div class="text-[10px] text-slate-400 mt-0.5 font-mono">Module: Cam-Controller</div>
+        </div>
+      </div>
+
+      <!-- 2. MAIN 4-STEP PIPELINE (ALL 4 IN 1 SLIDE) -->
+      <div class="grid grid-cols-12 gap-3.5 my-auto items-stretch">
+        
+        <!-- STEP 1: 4 THƯ VIỆN CỐT LÕI (Col 3) -->
+        <div class="col-span-3 bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs hover:border-blue-300 transition-all">
+          <div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-2.5">
+              <span class="w-6 h-6 rounded-lg bg-blue-600 text-white font-black text-xs flex items-center justify-center">1</span>
+              <span class="text-[10px] font-mono font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">requirements.txt</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mb-1">4 Thư Viện Cốt Lõi</h3>
+            <p class="text-slate-500 text-[11px] leading-tight mb-2.5">Nền tảng trích xuất & xử lý ảnh:</p>
+            
+            <div class="space-y-1.5 font-code text-[10px]">
+              <div class="bg-white p-1.5 rounded-lg border border-slate-200 flex items-center justify-between">
+                <span class="text-blue-600 font-bold">opencv-python</span>
+                <span class="text-slate-500 text-[9px]">Capture & Codec</span>
+              </div>
+              <div class="bg-white p-1.5 rounded-lg border border-slate-200 flex items-center justify-between">
+                <span class="text-amber-600 font-bold">numpy</span>
+                <span class="text-slate-500 text-[9px]">Matrix & HStack</span>
+              </div>
+              <div class="bg-white p-1.5 rounded-lg border border-slate-200 flex items-center justify-between">
+                <span class="text-emerald-600 font-bold">pygrabber</span>
+                <span class="text-slate-500 text-[9px]">DirectShow Query</span>
+              </div>
+              <div class="bg-white p-1.5 rounded-lg border border-slate-200 flex items-center justify-between">
+                <span class="text-purple-600 font-bold">comtypes</span>
+                <span class="text-slate-500 text-[9px]">Windows COM API</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-blue-50 border border-blue-200 p-2 rounded-xl text-[10px] text-blue-900 font-medium mt-2 leading-tight">
+            💡 <strong>pygrabber + comtypes:</strong> Bỏ webcam laptop, khóa chặt đúng 2 camera UGREEN rời.
+          </div>
+        </div>
+
+        <!-- STEP 2: GHI HÌNH ĐA LUỒNG 60 FPS (Col 3) -->
+        <div class="col-span-3 bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs hover:border-emerald-300 transition-all">
+          <div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-2.5">
+              <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center">2</span>
+              <span class="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">Multi-Threaded</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mb-1">Ghi Hình 60 FPS Liên Tục</h3>
+            <p class="text-slate-500 text-[11px] leading-tight mb-2.5">Đa luồng chống nghẽn I/O (Zero Drop):</p>
+
+            <div class="space-y-2">
+              <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-1">
+                <div class="flex items-center justify-between text-[11px] font-bold text-slate-800">
+                  <span class="flex items-center gap-1"><i class="fa-solid fa-camera text-emerald-600"></i> Thread Đọc Độc Lập</span>
+                  <span class="text-emerald-600 font-mono text-[10px]">60 Hz</span>
+                </div>
+                <div class="text-[10px] text-slate-500 leading-tight">Lấy luồng từ 2 cảm biến liên tục, không chờ ổ cứng ghi xong.</div>
+              </div>
+
+              <div class="bg-white p-2 rounded-xl border border-slate-200 space-y-1">
+                <div class="flex items-center justify-between text-[11px] font-bold text-slate-800">
+                  <span class="flex items-center gap-1"><i class="fa-solid fa-layer-group text-amber-500"></i> Hàng Đợi Buffer (Queue)</span>
+                  <span class="text-amber-600 font-mono text-[10px]">120 Frames</span>
+                </div>
+                <div class="text-[10px] text-slate-500 leading-tight">Đệm dữ liệu trong RAM C-Contiguous, hấp thụ độ trễ ghi đĩa.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-emerald-50 border border-emerald-200 p-2 rounded-xl text-[10px] text-emerald-900 font-medium mt-2 leading-tight">
+            ⚡ <strong>Hiệu năng:</strong> Xe chạy xóc qua luống cây, hình ảnh vẫn sắc nét ở tốc độ màn trập 1/60s.
+          </div>
+        </div>
+
+        <!-- STEP 3: TÁCH FOLDER LEFT & RIGHT (Col 3) -->
+        <div class="col-span-3 bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs hover:border-purple-300 transition-all">
+          <div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-2.5">
+              <span class="w-6 h-6 rounded-lg bg-purple-600 text-white font-black text-xs flex items-center justify-center">3</span>
+              <span class="text-[10px] font-mono font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">Dataset Ready</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mb-1">Tách Frame Left / Right</h3>
+            <p class="text-slate-500 text-[11px] leading-tight mb-2.5">Tự động hóa cấu trúc thư mục:</p>
+
+            <div class="bg-slate-900 text-slate-200 p-2.5 rounded-xl font-code text-[10px] leading-relaxed shadow-sm">
+              <div class="text-emerald-400 font-bold">recordings/</div>
+              <div class="pl-2.5 text-blue-400">├── <span class="text-white font-bold">left/</span> session_.../</div>
+              <div class="pl-6 text-slate-400">├── frame_000001.jpg</div>
+              <div class="pl-6 text-slate-400">└── frame_000002.jpg</div>
+              <div class="pl-2.5 text-emerald-400">├── <span class="text-white font-bold">right/</span> session_.../</div>
+              <div class="pl-6 text-slate-400">├── frame_000001.jpg</div>
+              <div class="pl-6 text-slate-400">└── frame_000002.jpg</div>
+              <div class="pl-2.5 text-amber-400">└── <span class="text-white font-bold">snapshots/</span> (Cặp ảnh C)</div>
+            </div>
+          </div>
+
+          <div class="bg-purple-50 border border-purple-200 p-2 rounded-xl text-[10px] text-purple-900 font-medium mt-2 leading-tight">
+            🎯 <strong>Đồng bộ Frame Index:</strong> Cặp ảnh Trái - Phải khớp mili-giây, nạp thẳng Roboflow train YOLO.
+          </div>
+        </div>
+
+        <!-- STEP 4: VIDEO KÉP TOÀN BỘ FRAME (Col 3) -->
+        <div class="col-span-3 bg-slate-50 border border-slate-200 rounded-2xl p-3.5 flex flex-col justify-between shadow-xs hover:border-amber-300 transition-all">
+          <div>
+            <div class="flex items-center justify-between pb-2 border-b border-slate-200 mb-2.5">
+              <span class="w-6 h-6 rounded-lg bg-amber-600 text-white font-black text-xs flex items-center justify-center">4</span>
+              <span class="text-[10px] font-mono font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">cv2.VideoWriter</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-sm mb-1">Ghi Video Kép Toàn Cảnh</h3>
+            <p class="text-slate-500 text-[11px] leading-tight mb-2.5">Chứa 100% Frame của cả 2 Cam:</p>
+
+            <!-- Mini Graphic of Dual Frame -->
+            <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 text-center space-y-1.5">
+              <div class="flex gap-1">
+                <div class="flex-1 bg-blue-900/60 border border-blue-500/60 p-2 rounded-lg text-white font-mono text-[9px]">
+                  <div class="font-bold text-blue-300">CAM TRÁI</div>
+                  <div class="text-[8px] text-slate-400">1920 × 1080</div>
+                </div>
+                <div class="flex-1 bg-emerald-900/60 border border-emerald-500/60 p-2 rounded-lg text-white font-mono text-[9px]">
+                  <div class="font-bold text-emerald-300">CAM PHẢI</div>
+                  <div class="text-[8px] text-slate-400">1920 × 1080</div>
+                </div>
+              </div>
+              <div class="text-[9px] font-code text-amber-400">
+                dual_frame = np.hstack([L, R])
+              </div>
+            </div>
+
+            <div class="mt-2 bg-white p-1.5 rounded-lg border border-slate-200 text-[10px] text-slate-700 flex justify-between items-center font-mono">
+              <span>Độ phân giải:</span>
+              <strong class="text-slate-900">3840 × 1080 @ 60FPS</strong>
+            </div>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-200 p-2 rounded-xl text-[10px] text-amber-900 font-medium mt-2 leading-tight">
+            🎬 <strong>Thẩm định toàn vẹn:</strong> Phát lại 1 video duy nhất để xem toàn cảnh 2 bên luống cùng lúc.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3. SLIDE FOOTER -->
+      <div class="flex justify-between items-center text-xs text-slate-500 font-medium border-t border-slate-100 pt-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Hệ Thống Xe Trinh Sát Lập Bản Đồ Nông Nghiệp Tự Hành • <strong>Nhóm MicroScout-AI VietFuture 2026</strong></span>
+        </div>
+        <div class="font-mono text-[11px] text-slate-400">
+          Slide 1-Page Summary • Ready for Presentation
+        </div>
+      </div>
+
+      <div class="bottom-bar"></div>
+    </div>
+  </div>
+
+</body>
+</html>
